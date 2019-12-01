@@ -1,0 +1,9 @@
+{
+  "ext": "ts",
+  "execMap": {
+    "ts": "ts-node"
+  } ,
+  "env": {
+  "NODE_ENV": "local"
+}
+}
