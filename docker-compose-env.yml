@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+  civicsense_students_be:
+    networks:
+      default:
+      traefik:
+    image: dtr.${DOCKER_DOMAIN}/${DIGITAL_DTR_ORG_NAME}/${DIGITAL_DTR_REPO_NAME}:${TAG}
+    command: sh -c ". ./set_secrets.sh && npm run start"
+    deploy:
+      labels:
+        - "app-name=civicsense_students_be"
+        - "env=${RELEASE_ENVIRONMENTNAME}"
+        - "com.docker.ucp.access.label=${DDC_COLLECTION}"
+        - "traefik.tags=${DDC_TOWER}"
+        - "traefik.enable=true"
+        - "traefik.port=3000"
+        - "traefik.docker.network=${TRAEFIK_NETWORK}"
+        - "traefik.backend=${TRAEFIK_BACKEND}"
+        - "traefik.frontend.rule=Host:${TRAEFIK_FRONTEND_HOST};PathPrefix:${TRAEFIK_FRONTEND_PATH}"
+        - "traefik.backend.loadbalancer.method=drr"
+      placement:
+        constraints:
+          - node.platform.os == linux
+          - node.labels.tower == ${DDC_TOWER}
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '2.0'
+    env_file: env_vars/${RELEASE_ENVIRONMENTNAME}.env
+    secrets:
+      - source: civicsense_students_be
+        target: civicsense_students_be
+        mode: 0500
+        uid: '502'
+
+secrets:
+  civicsense_students_be:
+    external:
+      name: civicsense_students_be-${RELEASE_ENVIRONMENTNAME}
+
+networks:
+  default:
+  traefik:
+    external:
+      name: ${TRAEFIK_NETWORK}
