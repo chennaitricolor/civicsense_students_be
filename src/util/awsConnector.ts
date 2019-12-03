@@ -1,5 +1,6 @@
 import S3 from 'aws-sdk/clients/s3';
 import SNS from 'aws-sdk/clients/sns';
+import SES from 'node-ses';
 
 export default class AwsConnector {
     public static getS3ClientConnection(config): any {
@@ -27,8 +28,23 @@ export default class AwsConnector {
         return AwsConnector.SNSClient;
     }
 
+    public static getSESClientConnection(config): any {
+        if (!AwsConnector.SESClient) {
+            AwsConnector.SESClient = SES.createClient(
+                {
+                    key: config.aws.accessKey,
+                    secret: config.aws.secretAccessKey,
+                    amazon: config.aws.amazon
+
+                }
+            );
+        }
+        return AwsConnector.SESClient;
+    }
+
     private static S3Client: S3;
     private static SNSClient: SNS;
+    private static SESClient: SES.Client;
 
     private constructor() {
     }

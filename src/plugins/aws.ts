@@ -94,6 +94,18 @@ class AWSPlugin {
             }
         ));
     }
+
+    public sesSendMail(emailOpt) {
+        return new Promise(((resolve, reject) => {
+                AwsConnector.getSESClientConnection(this.config).sendEmail(emailOpt, (err, data) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    return resolve();
+                });
+            }
+        ));
+    }
 }
 
 const awsPlugin =  async (fastify, opts, next) => {

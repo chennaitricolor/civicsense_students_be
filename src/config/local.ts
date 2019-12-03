@@ -12,6 +12,10 @@ const local =  {
             authKey: '',
             invisible: '',
             baseUrl: 'http://localhost:1234'
+        },
+        email: {
+            secret: 'This is a secret',
+            from: 'gccsecretagentx@gmail.com'
         }
     },
     s3: {

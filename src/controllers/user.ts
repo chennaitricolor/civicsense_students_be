@@ -28,8 +28,13 @@ class UserController {
             try {
                 request.body.currentLocation = await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point');
                 request.body.defaultLocation = request.body.currentLocation;
-                // add email verification
-                if (request.body.phoneNumber && !await  fastify.verifyMobileOTP(request.body.phoneNumber, request.body.otp)) {
+                if (!request.body.phoneNumber || request.body.phoneNumber && !await  fastify.verifyMobileOTP(request.body.phoneNumber, request.body.otp.mobile)) {
+                    return reply.send({
+                        success: false
+                    });
+                }
+
+                if (!request.body.email || request.body.email && !await fastify.verifyEmailOTP(request.body.email, request.body.otp.email)) {
                     return reply.send({
                         success: false
                     });
@@ -89,6 +94,11 @@ class UserController {
                         success: false
                     });
                 }
+                if (email && !await fastify.generateEmailOTP(email)) {
+                    return reply.status(200).send({
+                        success: false
+                    });
+                }
                 return reply.status(200).send({
                     success: true
                 });
@@ -109,7 +119,7 @@ class UserController {
             try {
 
                 const { phoneNumber, email} = request.query;
-                if (phoneNumber && !await fastify.resendMobileOTP(phoneNumber)) {
+                if (phoneNumber && !await fastify.resendMobileOTP(phoneNumber) && email && !await fastify.generateEmailOTP(email)) {
                     return reply.status(200).send({
                         success: false
                     });

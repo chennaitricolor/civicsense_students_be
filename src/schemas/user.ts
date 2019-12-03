@@ -20,7 +20,10 @@ const userSchema = {
                 userId: customStringJoi.customValidation().filterBadWords().lowercase().required(),
                 password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/).required(),
                 avatar: Joi.number().min(1).max(8).default(1),
-                otp: Joi.number().max(9999).required(),
+                otp: {
+                    mobile: Joi.number().max(9999).required(),
+                    email: Joi.number().max(9999).required()
+                },
                 currentLocation: Joi.object().keys({
                     coordinates: Joi.array().items(Joi.number()),
                 }).required()

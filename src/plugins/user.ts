@@ -1,4 +1,6 @@
+import crypto from 'crypto';
 import moment from 'moment';
+import { authenticator } from 'otplib';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import User from '../models/user';
@@ -58,7 +60,6 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
     const updatePassword = async ( userId, password, isAdmin ) => {
         try {
             if (isAdmin) {
@@ -70,7 +71,6 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
     const updateProfile = async (userId, data) => {
         try {
             return await User.findByIdAndUpdate(userId, data);
@@ -78,7 +78,6 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
     const updateRewards = async (userId, rewards) => {
         try {
             return await User.findByIdAndUpdate(userId, {$inc: {rewards}});
@@ -86,7 +85,6 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
     const insertUserTask = async (userId, data) => {
         try {
             data.userId = userId;
@@ -96,7 +94,6 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
     const findDuplicateLocationData = async (data) => {
         try {
             return await UserTask.find(
@@ -133,7 +130,10 @@ const userPlugin =  async (fastify, opts, next) => {
                 return `${baseUrl}/retry?mobile=${mobile}&authkey=${authKey}`;
         }
     };
-
+    const makeEmailOTPHash = (email) => {
+        const secret = fastify.config.otp.email.secret + email;
+        return crypto.createHash('md5').update(secret).digest('hex');
+    };
     const generateMobileOTP = async (mobile) => {
         try {
             const options = {
@@ -148,7 +148,26 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
+    const generateEmailOTP = async (email) => {
+        try {
+            const hash = makeEmailOTPHash(email);
+            authenticator.options = {
+                digits: 4
+            };
+            const token = authenticator.generate(hash);
+            const emailOpt = {
+                to: email,
+                from: fastify.config.otp.email.from,
+                subject: 'OTP',
+                message: `Your OTP is <b>${token}</b>`,
+                altText: `${token}`
+            };
+            await fastify.awsPlugin.sesSendMail(emailOpt);
+            return true;
+        } catch (e) {
+            throw e;
+        }
+    };
     const verifyMobileOTP = async (mobile, otp) => {
         try {
             const options = {
@@ -159,6 +178,15 @@ const userPlugin =  async (fastify, opts, next) => {
             };
             const { type } = await fastify.httpClient.post(options) || {};
             return type === 'success';
+        } catch (e) {
+            throw e;
+        }
+    };
+    const verifyEmailOTP = async (email, otp) => {
+        try {
+            const hash = makeEmailOTPHash(email);
+            const isValid = authenticator.check(otp, hash);
+            return isValid;
         } catch (e) {
             throw e;
         }
@@ -245,7 +273,6 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
     const getUserTask = async (taskId) => {
         try {
             return await AdminCampaign.findById(taskId, 'startDate endDate campaignName description rewards rules');
@@ -253,7 +280,6 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-
     const getLeaderboard = async (userId, type) => {
         try {
             const filter = type === 'local' ?  [{
@@ -315,13 +341,16 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
+
     fastify.decorate('insertUser', insertUser);
     fastify.decorate('login', login);
     fastify.decorate('userIdAvailability', userIdAvailability);
     fastify.decorate('findUserIdByEmail', findUserIdByEmail);
     fastify.decorate('updateProfile', updateProfile);
     fastify.decorate('generateMobileOTP', generateMobileOTP);
+    fastify.decorate('generateEmailOTP', generateEmailOTP);
     fastify.decorate('verifyMobileOTP', verifyMobileOTP);
+    fastify.decorate('verifyEmailOTP', verifyEmailOTP);
     fastify.decorate('resendMobileOTP', resendMobileOTP);
     fastify.decorate('updatePassword', updatePassword);
     fastify.decorate('updateLocation', updateLocation);

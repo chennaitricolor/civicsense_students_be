@@ -32,7 +32,9 @@ declare module 'fastify' {
         userIdAvailability: (data: object, exists: boolean) => Promise<object>;
         findUserIdByEmail: (data: object) => Promise<object>;
         verifyMobileOTP: (mobile: number, otp: number) => Promise<object>;
+        verifyEmailOTP: (email: string, otp: number) => Promise<object>;
         generateMobileOTP: (mobile: number) => Promise<object>;
+        generateEmailOTP: (email: string) => Promise<object>;
         resendMobileOTP: (mobile: number) => Promise<object>;
         httpClient: HttpClient;
         updatePassword: (userId: string, password: string, isAdmin: boolean) => Promise<object>;
