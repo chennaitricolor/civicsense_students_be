@@ -2,9 +2,11 @@ version: '3.7'
 services:
   civicsense_students_be:
     image: ${APP_NAME}/${APP_TYPE}:${TAG}
-    env_file: env_vars/${STAGE_NAME}.env
+    env_file: env_vars/${RELEASE_ENVIRONMENT}.env
+    depends_on:
+      - redis
     environment:
-      NODE_ENV: ${NODE_ENV}
+      NODE_ENV: ${RELEASE_ENVIRONMENT}
       BUCKET_NAME: ${BUCKET_NAME}
       ACCESS_KEY: ${ACCESS_KEY}
       SECRETACCESSKEY: ${SECRETACCESSKEY}
@@ -17,14 +19,11 @@ services:
       OTP_URL: ${OTP_URL}
       OTP_AUTHKEY: ${OTP_AUTHKEY}
     ports:
-      - "3000"
+      - "3010:3010"
     networks:
       app:
   redis:
     image: redis
-    container_name: redis
-    expose:
-      - 6379
     networks:
       app:
 
