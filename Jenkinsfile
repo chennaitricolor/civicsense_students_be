@@ -2,7 +2,7 @@ def userInput = true
 def didTimeout = false
 def dev_compose_file = 'docker-compose-dev.yml'
 def prod_compose_file = 'docker-compose-prod.yml'
-
+properties([pipelineTriggers([githubPush()])])
 node {
 
 stage 'Clean WorkSpace'
