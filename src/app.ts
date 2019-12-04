@@ -23,7 +23,10 @@ const RedisStore = redisConnect(fastifySession);
 export class FastifyPluginRegister  {
     public static fastifyPluginRegister(fastify) {
       const contextPath = '/api/csr';
-      const redisClient = redis.createClient();
+      const redisClient = redis.createClient({
+        host: process.env.REDIS_HOST,
+        port: 6379
+      });
       this.setRedisEventHandlers(redisClient);
 
       // fastify plugins
@@ -34,7 +37,7 @@ export class FastifyPluginRegister  {
         cookie: { secure: false },
         expires: 1800000,
         store: new RedisStore({
-          host: 'localhost',
+          host: process.env.REDIS_HOST,
           port: 6379,
           client: redisClient
         })
