@@ -8,10 +8,10 @@ const qa = {
         mobile: {
             expiry: '',
             length: '',
-            templateId: '',
-            authKey: process.env.MOBILE_OTP_AUTH_KEY,
+            templateId: process.env.OTP_TEMPLATE_ID,
+            authKey: process.env.OTP_AUTHKEY,
             invisible: '',
-            baseUrl: 'https://api.msg91.com/api/v5/otp'
+            baseUrl: process.env.OTP_URL
         }
     },
     s3: {

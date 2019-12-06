@@ -8,7 +8,7 @@ const local =  {
         mobile: {
             expiry: '',
             length: '',
-            templateId: '',
+            templateId: '5de73ee9d6fc054a9a5e0a90',
             authKey: '',
             invisible: '',
             baseUrl: 'http://localhost:1234'
