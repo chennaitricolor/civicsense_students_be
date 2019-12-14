@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
     password: {type: String, required: true},
     mobileDeviceEndpoint: {type: String},
     platform: {type: String},
-    rewards: {type: Number},
+    rewards: {type: Number,  default: 0},
     currentLocation: { type: mongoose.Types.ObjectId, ref: location},
     defaultLocation: { type: mongoose.Types.ObjectId, ref: location},
     lastUsedDateTime: { type: Date },

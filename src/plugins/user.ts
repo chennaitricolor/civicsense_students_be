@@ -29,7 +29,7 @@ const userPlugin =  async (fastify, opts, next) => {
             if (exists) {
                 return await User.findById(userId, '_id');
             } else {
-                return await User.findById(userId, 'name phoneNumber email dateOfBirth avatar gender defaultLocation');
+                return await User.findById(userId, 'name phoneNumber email dateOfBirth avatar gender defaultLocation rewards');
             }
         } catch (e) {
             throw e;
@@ -256,9 +256,10 @@ const userPlugin =  async (fastify, opts, next) => {
 
     const getLeaderboard = async (userId, type) => {
         try {
+            const findUser = await userIdAvailability(userId, false);
             const filter = type === 'local' ?  [{
                 $match: {
-                    defaultLocation: (await userIdAvailability(userId, false)).defaultLocation
+                    defaultLocation: findUser.defaultLocation
                 }
             }] : [];
             const leaderboard = await User.aggregate([...filter, {
@@ -309,7 +310,8 @@ const userPlugin =  async (fastify, opts, next) => {
 
             return {
                 leaderboard,
-                userRank: userRank ? userRank + 1 : -1
+                userRank: !isNaN(userRank)  ? userRank + 1 : -1,
+                userRewards: findUser.rewards
             };
         } catch (e) {
             throw e;
