@@ -33,7 +33,7 @@ export class FastifyPluginRegister  {
       fastify.register(fastifyCookie);
       fastify.register(fastifySession, {
         cookieName: process.env.COOKIE_NAME,
-        secret: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        secret: process.env.SECRET,
         cookie: { secure: false },
         expires: 1800000,
         store: new RedisStore({
