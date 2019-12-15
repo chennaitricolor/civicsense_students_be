@@ -70,6 +70,19 @@ class AdminController {
             }
         });
 
+        fastify.get('/location', {}, async (request, reply) => {
+            try {
+                return reply.status(200).send(await fastify.getLocation());
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
+                });
+
+            }
+        });
+
         fastify.put('/submission/:submissionId', AdminSchema.validateSubmission, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);

@@ -45,6 +45,7 @@ declare module 'fastify' {
         getLeaderboard: (userId: string, rewards: string) => Promise<object>;
         getCampaignDetails: (campaignId: string, lastRecordCreatedAt: Date) => Promise<object>;
         getUserTasks: (userId: string, data: object) => Promise<object>;
+        getLocation: () => Promise<object>;
         getUserTask: (taskId: string) => Promise<object>;
         findDuplicateLocationData: (data: object) => Promise<object>;
         updateMobileDeviceEndpoint: (userId: string, mobileEndpointArn: string, platform: string) => string;

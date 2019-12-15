@@ -9,6 +9,14 @@ const LocationPlugin = async (fastify, opts, next) => {
         }
     };
 
+    const getLocation = async () => {
+        try {
+            return await Location.find({}, 'locationNm state country');
+        } catch (e) {
+            throw e;
+        }
+    };
+
     const getZoneFromLocation = async (coordinates, type) => {
         try {
             const zoneArray = await Location.find({
@@ -33,6 +41,7 @@ const LocationPlugin = async (fastify, opts, next) => {
     };
 
     fastify.decorate('insertLocation', insertLocation);
+    fastify.decorate('getLocation', getLocation);
     fastify.decorate('getZoneFromLocation', getZoneFromLocation);
     next();
 };
