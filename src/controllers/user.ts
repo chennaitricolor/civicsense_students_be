@@ -299,7 +299,7 @@ class UserController {
                     return reply.status(200).send({message: 'duplicate location', success: false});
                 }
                 const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
-                await fastify.awsPlugin.uploadFile(file, fileKey);
+                await fastify.awsPlugin.uploadFile(file, fileKey, false);
                 request.body.photoId = fileKey;
                 await fastify.insertUserTask(request.session.user.userId, request.body);
                 await fastify.updateEntries(request.body.campaignId);
@@ -358,6 +358,44 @@ class UserController {
                     error,
                     message: error.message ? error.message : 'error happened'
 
+                });
+
+            }
+        });
+        fastify.get('/rewards', {}, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                reply.send({
+                    success: true,
+                    rewards: await fastify.getRewards()
+                });
+            } catch (error) {
+                reply.status(500);
+                reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+
+        });
+        fastify.get('/images/:imageId', UserSchema.getImage, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            if (!request.session.user.isAdmin && !request.query.isAsset) {
+                return reply.status(401).send({ error: 'Unauthorized' });
+            }
+            try {
+                return reply.send(await fastify.awsPlugin.downloadFile(request.params.imageId, request.query.isAsset));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error: error .message,
+                    message: 'error error.message ? error.message : happened'
                 });
 
             }

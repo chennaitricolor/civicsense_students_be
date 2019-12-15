@@ -1,6 +1,7 @@
 import moment from 'moment';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
+import Reward from '../models/rewards';
 import User from '../models/user';
 import UserTask from '../models/user-task';
 import Encryption from '../util/encryption';
@@ -239,6 +240,9 @@ const userPlugin =  async (fastify, opts, next) => {
                 endDate: {
                     $gte: new Date(),
                 },
+                startDate: {
+                    $lte: new Date(),
+                },
                 locationIds: currentLocation
             }, 'startDate endDate campaignName description rewards');
         } catch (e) {
@@ -249,6 +253,29 @@ const userPlugin =  async (fastify, opts, next) => {
     const getUserTask = async (taskId) => {
         try {
             return await AdminCampaign.findById(taskId, 'startDate endDate campaignName description rewards rules');
+        } catch (e) {
+            throw e;
+        }
+    };
+
+    const getRewards = async () => {
+        try {
+            const today = new Date();
+            return await Reward.aggregate([{
+                $match: {
+                    validTill: {$gte: today},
+                    validFrom: {$lte: today}
+                }
+            }, {
+                $project: {
+                    title: 1,
+                    description: 1,
+                    gems: 1,
+                    photoId: 1,
+                    validTill: 1,
+                }
+
+            }]);
         } catch (e) {
             throw e;
         }
@@ -335,6 +362,7 @@ const userPlugin =  async (fastify, opts, next) => {
     fastify.decorate('updateMobileDeviceEndpoint', updateMobileDeviceEndpoint);
     fastify.decorate('findLocationBasedUserData', findLocationBasedUserData);
     fastify.decorate('updateRewards', updateRewards);
+    fastify.decorate('getRewards', getRewards);
     fastify.decorate('getLeaderboard', getLeaderboard);
     next();
 };

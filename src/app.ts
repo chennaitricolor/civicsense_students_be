@@ -64,16 +64,7 @@ export class FastifyPluginRegister  {
       fastify.register(( instance, opts, next) => {
         // hooks
         PreHandlerHook.authenticationPreHandler(instance);
-        const options = {
-          addToBody: true,
-          sharedSchemaId: 'MultipartFileType',
-          limit: {
-            fileSize: 20,
-            files: 1,  }
-        };
-        instance.register(fastifyMultipart, options);
-
-        // service with authentication
+        this.setMultipartProcessing(instance);
         instance.register(PostLoginUserController, { prefix:  contextPath});
         next();
       });
@@ -82,8 +73,9 @@ export class FastifyPluginRegister  {
       fastify.register(( instance, opts, next) => {
         // hooks
         PreHandlerHook.adminAuthenticationPreHandler(instance);
-        // service with authentication
+        this.setMultipartProcessing(instance);
         instance.register(PostLoginAdminController, { prefix:  contextPath});
+
         next();
       });
     }
@@ -95,6 +87,17 @@ export class FastifyPluginRegister  {
       redisClient.on('error', () => {
         console.error('redis error');
       });
+    }
+
+    private static setMultipartProcessing(instance) {
+      const options = {
+        addToBody: true,
+        sharedSchemaId: 'MultipartFileType',
+        limit: {
+          fileSize: 20,
+          files: 1,  }
+      };
+      instance.register(fastifyMultipart, options);
     }
 
 }

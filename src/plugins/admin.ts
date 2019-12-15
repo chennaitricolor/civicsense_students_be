@@ -1,5 +1,6 @@
 import moment from 'moment';
 import AdminCampaign from '../models/admin-campaign';
+import Reward from '../models/rewards';
 import UserTaskSchema from '../models/user-task';
 
 const adminPlugin =  async (fastify, opts, next) => {
@@ -18,7 +19,8 @@ const adminPlugin =  async (fastify, opts, next) => {
             return await AdminCampaign.aggregate(
                 [{
                     $match: {
-                        endDate: {$gte: today}
+                        endDate: {$gte: today},
+                        startDate: {$lte: today}
                     }
                 }, {
                     $facet: {
@@ -100,13 +102,36 @@ const adminPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
+    const addRewards = async (userId, rewards) => {
+        try {
+            return await new Reward({
+                ...rewards,
+                createdBy: userId,
+                updatedBy: userId
+            }).save();
+        } catch (e) {
+            throw e;
+        }
+    };
 
+    const editRewards = async (rewardId, userId, rewards) => {
+        try {
+            return await  Reward.findByIdAndUpdate(rewardId, {
+                ...rewards,
+                updatedBy: userId
+            });
+        } catch (e) {
+            throw e;
+        }
+    };
     fastify.decorate('insertCampaign', insertCampaign);
     fastify.decorate('getLiveCampaigns', getLiveCampaigns);
     fastify.decorate('updateEntries', updateEntries);
     fastify.decorate('getCampaignDetails', getCampaignDetails);
     fastify.decorate('getCampaign', getCampaign);
     fastify.decorate('updateTask', updateTask);
+    fastify.decorate('addRewards', addRewards);
+    fastify.decorate('editRewards', editRewards);
     next();
 };
 export default adminPlugin;

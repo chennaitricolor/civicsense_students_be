@@ -15,7 +15,8 @@ const prod =  {
         }
     },
     s3: {
-        bucketName : process.env.BUCKET_NAME
+        taskBucketName : process.env.TASK_BUCKET_NAME,
+        assetBucketName : process.env.ASSET_BUCKET_NAME
     },
     aws: {
         accessKey :  process.env.ACCESS_KEY,

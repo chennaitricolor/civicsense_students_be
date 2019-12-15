@@ -39,6 +39,9 @@ declare module 'fastify' {
         insertUserTask: (userId: string, data: object) => Promise<object>;
         updateTask: (userId: string, data: object) => Promise<object>;
         updateRewards: (userId: string, rewards: number) => Promise<object>;
+        addRewards: (userId: string, rewards: number) => Promise<object>;
+        editRewards: (rewardId: string, userId: string, rewards: number) => Promise<object>;
+        getRewards: () => Promise<object>;
         getLeaderboard: (userId: string, rewards: string) => Promise<object>;
         getCampaignDetails: (campaignId: string, lastRecordCreatedAt: Date) => Promise<object>;
         getUserTasks: (userId: string, data: object) => Promise<object>;

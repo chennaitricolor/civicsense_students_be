@@ -1,4 +1,5 @@
 'use strict';
+import mongoose from 'mongoose';
 import uuid from 'uuid/v4';
 import AdminSchema from '../schemas/admin';
 import LocationSchema from '../schemas/location';
@@ -68,21 +69,7 @@ class AdminController {
 
             }
         });
-        fastify.get('/images/:imageId', AdminSchema.getImage, async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                return reply.send(await fastify.awsPlugin.downloadFile(request.params.imageId));
-            } catch (error) {
-                reply.status(500);
-                return reply.send({
-                    error: error .message,
-                    message: 'error error.message ? error.message : happened'
-                });
 
-            }
-        } );
         fastify.put('/submission/:submissionId', AdminSchema.validateSubmission, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
@@ -125,6 +112,55 @@ class AdminController {
 
             }
         });
+        fastify.post('/rewards', AdminSchema.addRewards, async (request, reply) => {
+            const file = request.body.file[0];
+            if (request.validationError && !file.data) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
+                await fastify.awsPlugin.uploadFile(file, fileKey, true);
+                request.body.photoId = fileKey;
+                await fastify.addRewards(request.session.user.userId, request.body);
+                return reply.status(200).send({
+                    success: true
+                });
+
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+            }
+        });
+        fastify.put('/rewards/:rewardId', AdminSchema.editRewards, async (request, reply) => {
+            const file = request.body.file[0];
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                if (file) {
+                    const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
+                    await fastify.awsPlugin.uploadFile(file, fileKey, true);
+                    request.body.photoId = fileKey;
+                }
+                await fastify.editRewards(request.params.rewardId, request.session.user.userId, request.body);
+                return reply.status(200).send({
+                    success: true
+                });
+
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+            }
+        });
+
     };
     public setPreLoginAdminRoutes = async (fastify) => {
         fastify.post('/admin/add', AdminSchema.add, async (request, reply) => {
@@ -172,7 +208,7 @@ class AdminController {
 
             }
         });
-    };
+        };
 }
 
 export const PostLoginAdminController = new AdminController().setPostLoginAdminRoutes;

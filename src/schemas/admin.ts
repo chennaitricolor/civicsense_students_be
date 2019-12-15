@@ -81,11 +81,41 @@ const adminSchema = {
         },
         attachValidation: true
     },
-    getImage: {
+    addRewards: {
         schema: {
+            body: Joi.object().keys({
+                title: Joi.string(),
+                description: Joi.string(),
+                file: Joi.array().items(Joi.object().keys({
+                    filename: Joi.string().required(),
+                    data: Joi.binary()
+                }).options({ allowUnknown: true })).required(),
+                gems: Joi.number().required(),
+                validFrom: Joi.date().format('DD-MM-YYYY').raw().required(),
+                validTill: Joi.date().format('DD-MM-YYYY').raw().required(),
+            }).min(1).required()
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
+    editRewards: {
+        schema: {
+            body: Joi.object().keys({
+                title: Joi.string(),
+                description: Joi.string(),
+                file: Joi.array().items(Joi.object().keys({
+                    filename: Joi.string().required(),
+                    data: Joi.binary()
+                }).options({ allowUnknown: true })).default([]),
+                gems: Joi.number(),
+                validFrom: Joi.date().format('DD-MM-YYYY').raw(),
+                validTill: Joi.date().format('DD-MM-YYYY').raw(),
+            }).min(1),
             params: Joi.object().keys({
-                imageId: Joi.string().required(),
-            }).required()
+                rewardId: Joi.string().required(),
+            }).required(),
         },
         schemaCompiler: (schema) => (data) => {
             return Joi.validate(data, schema);

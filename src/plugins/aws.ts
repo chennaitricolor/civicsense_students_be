@@ -34,10 +34,10 @@ class AWSPlugin {
         this.config = config;
     }
 
-    public uploadFile(file, Key) {
+    public uploadFile(file, Key, isAsset) {
         return new Promise(((resolve, reject) => {
                 const params = {
-                    Bucket: this.config.s3.bucketName,
+                    Bucket: isAsset ? this.config.s3.assetBucketName : this.config.s3.taskBucketName,
                     Key,
                     Body: file.data
                 };
@@ -53,10 +53,10 @@ class AWSPlugin {
         ));
     }
 
-    public downloadFile(Key) {
+    public downloadFile(Key, isAsset) {
         try {
             const params = {
-                Bucket: this.config.s3.bucketName,
+                Bucket: isAsset ? this.config.s3.assetBucketName : this.config.s3.taskBucketName,
                 Key,
             };
             return AwsConnector.getS3ClientConnection(this.config).getObject(params).createReadStream();

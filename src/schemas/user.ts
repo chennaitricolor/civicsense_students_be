@@ -187,7 +187,21 @@ const userSchema = {
             return Joi.validate(data, schema);
         },
         attachValidation: true
-    }
+    },
+    getImage: {
+        schema: {
+            params: Joi.object().keys({
+                imageId: Joi.string().required(),
+            }).required(),
+            querystring: Joi.object().keys({
+                isAsset: Joi.boolean().default(false)
+            }).min(1).required()
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
 
 };
 export default userSchema;
