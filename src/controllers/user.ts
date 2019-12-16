@@ -102,6 +102,27 @@ class UserController {
 
             }
         });
+        fastify.get('/user/verify-otp', UserSchema.generateOTP, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                const { phoneNumber, otp} = request.body;
+                await fastify.verifyMobileOTP(phoneNumber, otp);
+                request.session.phoneNumber = phoneNumber;
+                return reply.status(200).send({
+                    success: true
+                });
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+        });
         fastify.get('/user/resend-otp', UserSchema.generateOTP, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
@@ -155,6 +176,35 @@ class UserController {
 
             }
         });
+        fastify.put('/user/change-password', UserSchema.changePassword, async (request, reply) => {
+            if (request.validationError || (!request.session.user && !request.session.phoneNumber)) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                const filterBy: any = {};
+                if (request.session.phoneNumber) {
+                    filterBy.phoneNumber = request.session.phoneNumber;
+                }
+                else {
+                    filterBy._id = request.session.user.userId;
+                }
+                await fastify.updatePassword(filterBy, request.body.password, request.session.user.isAdmin);
+                await request.sessionStore.destroy(`${request.session.sessionId}`, (err) => {
+                    request.session = undefined;
+                    reply.send({
+                        success: true
+                    });
+                });
+            } catch (error) {
+                reply.status(500);
+                reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+        });
     };
     public setPostLoginUserRoutes = async (fastify) => {
         fastify.get('/user', async (request, reply) => {
@@ -197,28 +247,6 @@ class UserController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error,
-                    message: error.message ? error.message : 'error happened'
-
-                });
-
-            }
-        });
-        fastify.put('/user/change-password', UserSchema.changePassword, async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                await fastify.updatePassword(request.session.user.userId, request.body.password, request.session.user.isAdmin);
-                await request.sessionStore.destroy(`${request.session.sessionId}`, (err) => {
-                    request.session = undefined;
-                    reply.send({
-                        success: true
-                    });
-                });
-            } catch (error) {
-                reply.status(500);
-                reply.send({
                     error,
                     message: error.message ? error.message : 'error happened'
 

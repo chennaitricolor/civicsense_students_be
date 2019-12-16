@@ -188,6 +188,18 @@ const userSchema = {
         },
         attachValidation: true
     },
+    verifyOTP: {
+        schema: {
+            querystring: Joi.object().keys({
+                otp: Joi.number().max(9999).required(),
+                phoneNumber: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true}).required(),
+            }).min(1).required()
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
     getImage: {
         schema: {
             params: Joi.object().keys({

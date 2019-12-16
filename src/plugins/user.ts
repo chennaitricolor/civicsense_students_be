@@ -60,12 +60,12 @@ const userPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const updatePassword = async ( userId, password, isAdmin ) => {
+    const updatePassword = async ( filterBy, password, isAdmin ) => {
         try {
             if (isAdmin) {
-                return await Admin.findOneAndUpdate({_id: userId} , {$set: {password}}, { new: true});
+                return await Admin.findOneAndUpdate(filterBy , {$set: {password}}, { new: true});
             } else {
-                return await User.findOneAndUpdate({_id: userId} , {$set: {password}}, { new: true});
+                return await User.findOneAndUpdate(filterBy , {$set: {password}}, { new: true});
             }
         } catch (e) {
             throw e;
