@@ -94,10 +94,10 @@ const adminPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-    const updateEntries = async (campaignId) => {
+    const updateEntries = async (campaignId, doIncrement) => {
         try {
             return await AdminCampaign.findOneAndUpdate( { _id: campaignId },
-                { $inc: { noOfEntries: 1} });
+                { $inc: { noOfEntries: doIncrement ? 1 : -1} });
         } catch (e) {
             throw e;
         }

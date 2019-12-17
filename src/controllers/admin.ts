@@ -94,6 +94,7 @@ class AdminController {
                 if (request.body.rewards) {
                     await fastify.updateRewards(data.userId, request.body.rewards);
                 }
+                await fastify.updateEntries(request.body.campaignId, false);
                 return reply.status(200).send();
             } catch (error) {
                 reply.status(500);

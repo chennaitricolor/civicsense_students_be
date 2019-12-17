@@ -330,7 +330,7 @@ class UserController {
                 await fastify.awsPlugin.uploadFile(file, fileKey, false);
                 request.body.photoId = fileKey;
                 await fastify.insertUserTask(request.session.user.userId, request.body);
-                await fastify.updateEntries(request.body.campaignId);
+                await fastify.updateEntries(request.body.campaignId, true);
                 return reply.status(200).send({
                     success: true
                 });

@@ -27,7 +27,7 @@ declare module 'fastify' {
         getZoneFromLocation: (coordinates: any, type: string) => Promise<object>;
         updateUsedDateTime: (userid: string) => Promise<object>;
         getLiveCampaigns: () => Promise<object>;
-        updateEntries: (taskId: string) => Promise<object>;
+        updateEntries: (taskId: string, doIncrement: boolean) => Promise<object>;
         updateProfile: (userId: string, data: object) => Promise<object>;
         userIdAvailability: (data: object, exists: boolean) => Promise<object>;
         findUserIdByEmail: (data: object) => Promise<object>;
