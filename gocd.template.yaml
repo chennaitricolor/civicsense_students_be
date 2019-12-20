@@ -1,0 +1,95 @@
+format_version: 3
+pipelines:
+  webservice:
+    group: webservice
+    label_template: ${COUNT}
+    lock_behavior: none
+    display_order: -1
+    environment_variables:
+      IMAGETAG: students_admin_fe
+      REGISTRY: registry.app.local
+      STACK_NAME: backend
+      TRAEFIK_PORT: '3010'
+      TRAEFIK_NETWORK: apps
+      COMPOSE_FILE_NAME: docker-compose-env.yml
+      TASK_BUCKET_NAME: 
+      APPLICATION_ARN: 
+      REGION:
+      COOKIE_NAME:
+      SECRET:
+      REDIS_HOST:
+      OTP_URL:
+      ACCESS_KEY:
+      SECRETACCESSKEY:
+      MONGO_CONNECTION:
+      OTP_AUTHKEY:
+      OTP_TEMPLATE_ID:
+      ASSET_BUCKET_NAME:
+      TRAEFIK_FRONTEND_HOST:
+      
+      
+    materials:
+      git:
+        git: https://github.com/dhileepbalaji/civicsense_students_admin_fe.git
+        shallow_clone: false
+        auto_update: true
+        branch: master
+    stages:
+    - Docker.Build.Push.Image:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: true
+        approval:
+          type: success
+          allow_only_on_success: true
+        jobs:
+          Build.Push:
+            timeout: 0
+            tasks:
+            - exec:
+                arguments:
+                - -c
+                - docker build --no-cache -t ${REGISTRY}/${IMAGETAG}:${GO_REVISION_GIT}
+                  .
+                command: /bin/bash
+                run_if: passed
+            - exec:
+                arguments:
+                - -c
+                - docker push  ${REGISTRY}/${IMAGETAG}:${GO_REVISION_GIT}
+                command: /bin/bash
+                run_if: passed
+    - Dev:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: success
+          allow_only_on_success: true
+        jobs:
+          Docker_Stack_deploy:
+            timeout: 0
+            tasks:
+            - exec:
+                arguments:
+                - -c
+                - docker stack deploy -c ${COMPOSE_FILE_NAME} ${STACK_NAME}_${GO_STAGE_NAME}
+                command: /bin/bash
+                run_if: passed
+    - prod:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: manual
+          allow_only_on_success: true
+        jobs:
+          Docker_Stack_Deploy:
+            timeout: 0
+            tasks:
+            - exec:
+                arguments:
+                - -c
+                - docker stack deploy -c ${COMPOSE_FILE_NAME} ${STACK_NAME}_${GO_STAGE_NAME}
+                command: /bin/bash
+                run_if: passed
