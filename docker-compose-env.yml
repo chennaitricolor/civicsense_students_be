@@ -1,51 +1,51 @@
-version: '3.3'
-
-services:
-  civicsense_students_be:
-    networks:
-      default:
-      traefik:
-    image: dtr.${DOCKER_DOMAIN}/${DIGITAL_DTR_ORG_NAME}/${DIGITAL_DTR_REPO_NAME}:${TAG}
-    command: sh -c ". ./set_secrets.sh && npm run start"
-    deploy:
-      labels:
-        - "app-name=civicsense_students_be"
-        - "env=${RELEASE_ENVIRONMENTNAME}"
-        - "com.docker.ucp.access.label=${DDC_COLLECTION}"
-        - "traefik.tags=${DDC_TOWER}"
-        - "traefik.enable=true"
-        - "traefik.port=3000"
-        - "traefik.docker.network=${TRAEFIK_NETWORK}"
-        - "traefik.backend=${TRAEFIK_BACKEND}"
-        - "traefik.frontend.rule=Host:${TRAEFIK_FRONTEND_HOST};PathPrefix:${TRAEFIK_FRONTEND_PATH}"
-        - "traefik.backend.loadbalancer.method=drr"
-      placement:
-        constraints:
-          - node.platform.os == linux
-          - node.labels.tower == ${DDC_TOWER}
-      replicas: 3
-      update_config:
-        parallelism: 2
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      resources:
-        limits:
-          cpus: '2.0'
-    env_file: env_vars/${RELEASE_ENVIRONMENTNAME}.env
-    secrets:
-      - source: civicsense_students_be
-        target: civicsense_students_be
-        mode: 0500
-        uid: '502'
-
-secrets:
-  civicsense_students_be:
-    external:
-      name: civicsense_students_be-${RELEASE_ENVIRONMENTNAME}
+version: "3.7"
 
 networks:
-  default:
   traefik:
-    external:
-      name: ${TRAEFIK_NETWORK}
+    external: true
+    name: ${TRAEFIK_NETWORK}
+ 
+services:
+  redis:
+    image: redis
+    networks:
+      - traefik
+
+  civicsense_students_be:
+    image: ${REGISTRY}/${IMAGETAG}:${GO_REVISION}
+    env_file: env_vars/${GO_STAGE_NAME}.env
+    environment:
+      NODE_ENV: ${GO_STAGE_NAME}
+      TASK_BUCKET_NAME: ${TASK_BUCKET_NAME}
+      ASSET_BUCKET_NAME: ${ASSET_BUCKET_NAME}
+      ACCESS_KEY: ${ACCESS_KEY}
+      SECRETACCESSKEY: ${SECRETACCESSKEY}
+      APPLICATION_ARN: ${APPLICATION_ARN}
+      REGION: ${REGION}
+      COOKIE_NAME: ${COOKIE_NAME}
+      SECRET: ${SECRET}
+      MONGO_CONNECTION: ${MONGO_CONNECTION}
+      REDIS_HOST: ${REDIS_HOST}
+      OTP_URL: ${OTP_URL}
+      OTP_AUTHKEY: ${OTP_AUTHKEY}
+      OTP_TEMPLATE_ID: ${OTP_TEMPLATE_ID}
+    networks:
+      - traefik
+    deploy:
+      replicas: ${NUMBER_REPLICAS}
+      update_config:
+        parallelism: 1
+        delay: 30s
+      restart_policy:
+        condition: ${SERVICE_RESTART_CONDITION}
+        delay: 10s
+      labels: 
+        - traefik.frontend.rule=${TRAEFIK_FRONTEND_HOST}
+        - traefik.enable=true
+        - traefik.port=${TRAEFIK_PORT}
+        - traefik.docker.network=${TRAEFIK_NETWORK}
+        # Traefik service that listens to HTTP
+        #- traefik.redirectorservice.frontend.entryPoints=http
+        #- traefik.redirectorservice.frontend.redirect.entryPoint=https
+        # Traefik service that listens to HTTPS
+        #- traefik.webservice.frontend.entryPoints=https   
