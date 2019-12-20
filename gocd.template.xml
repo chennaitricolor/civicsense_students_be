@@ -1,0 +1,113 @@
+<pipelines group="webservices">    
+<pipeline name="DEMO">
+      <environmentvariables>
+        <variable name="IMAGETAG">
+          <value>DEMO</value>
+        </variable>
+        <variable name="REGISTRY">
+          <value>DEMO</value>
+        </variable>
+        <variable name="STACK_NAME">
+          <value>DEMO</value>
+        </variable>
+        <variable name="TRAEFIK_FRONTEND_HOST">
+          <value>Host:NULL;PathPrefix:/api</value>
+        </variable>
+        <variable name="TRAEFIK_PORT">
+          <value>3010</value>
+        </variable>
+        <variable name="TRAEFIK_NETWORK">
+          <value>apps</value>
+        </variable>
+        <variable name="COMPOSE_FILE_NAME">
+          <value>docker-compose-env.yml</value>
+        </variable>
+      </environmentvariables>
+      <materials>
+        <git url="https://github.com/dhileepbalaji/civicsense_students_be.git" />
+      </materials>
+      <stage name="Docker.Build.Push.Image" cleanWorkingDir="true">
+        <approval type="success" allowOnlyOnSuccess="true" />
+        <jobs>
+          <job name="Build.Push">
+            <tasks>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>docker build --no-cache -t ${REGISTRY}/${IMAGETAG}:${GO_REVISION} .</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>docker push  ${REGISTRY}/${IMAGETAG}:${GO_REVISION}</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="dev">
+        <approval type="success" allowOnlyOnSuccess="true" />
+        <environmentvariables>
+          <variable name="APPLICATION_ARN">
+            <value>NULL</value>
+          </variable>
+          <variable name="COOKIE_NAME">
+            <value>NULL</value>
+          </variable>
+          <variable name="SECRET">
+            <value>NULL</value>
+          </variable>
+          <variable name="REDIS_HOST">
+            <value>NULL</value>
+          </variable>
+          <variable name="OTP_URL">
+            <value>NULL</value>
+          </variable>
+          <variable name="OTP_TEMPLATE_ID">
+            <value>NULL</value>
+          </variable>
+          <variable name="ASSET_BUCKET_NAME">
+            <value>civic.sense.assets</value>
+          </variable>
+          <variable name="MONGO_CONNECTION" secure="true">
+            <encryptedValue>NULL</encryptedValue>
+          </variable>
+          <variable name="OTP_AUTHKEY" secure="true">
+            <encryptedValue>NULL</encryptedValue>
+          </variable>
+          <variable name="SECRETACCESSKEY" secure="true">
+            <encryptedValue>NULL</encryptedValue>
+          </variable>
+          <variable name="ACCESS_KEY" secure="true">
+            <encryptedValue>NULL</encryptedValue>
+          </variable>
+        </environmentvariables>
+        <jobs>
+          <job name="Docker_Stack_deploy">
+            <tasks>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>docker stack deploy -c ${COMPOSE_FILE_NAME} ${STACK_NAME}_${GO_STAGE_NAME}</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="prod">
+        <approval type="manual" allowOnlyOnSuccess="true" />
+        <jobs>
+          <job name="Docker_Stack_Deploy">
+            <tasks>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>docker stack deploy -c ${COMPOSE_FILE_NAME} ${STACK_NAME}_${GO_STAGE_NAME}</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+  </pipelines>
