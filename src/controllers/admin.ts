@@ -199,14 +199,15 @@ class AdminController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                if (await fastify.login(request.body, true)) {
+                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+                    await fastify.insertUser(request.body, true);
                     request.session.user = {
-                        userId: request.body.userId,
-                        isAdmin: true
+                        userId: request.body.userId
                     };
                     // save sessionId in redis
                     return reply.send({
-                        success: true
+                        success: true,
+                        isAdmin: true
                     });
                 }
                 return reply.send({
@@ -215,14 +216,15 @@ class AdminController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
 
                 });
 
             }
         });
-        };
+
+    };
 }
 
 export const PostLoginAdminController = new AdminController().setPostLoginAdminRoutes;

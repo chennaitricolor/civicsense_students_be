@@ -8,8 +8,8 @@ const RewardsSchema = new mongoose.Schema({
     photoId: {type: String, required: true},
     validFrom: {type: Date, required: true},
     validTill: {type: Date, required: true},
-    createdBy: { type: String, ref: admin},
-    updatedBy: { type: String, ref: admin}
+    createdBy: { type: Number, ref: admin},
+    updatedBy: { type: Number, ref: admin}
 }, {
     timestamps: true
 });

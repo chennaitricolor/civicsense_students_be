@@ -75,3 +75,6 @@ dist/
 
 # VS Code Config
 .vscode
+
+.DS_Store
+src/.DS_Store

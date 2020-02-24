@@ -2,13 +2,13 @@ import BaseJoi from '@hapi/joi';
 import joiDateExtension from 'joi-date-extensions';
 import joiPhoneNumber from 'joi-phone-number';
 import moment from 'moment';
-import FilterWords from './filterBadWords';
+import uniqid from 'uniqid';
 
 const Joi = BaseJoi.extend(joiDateExtension);
 
 interface IExtendedStringSchema extends  BaseJoi.StringSchema {
     adultCheck(): this;
-    filterBadWords(): this;
+    generateRandomName(): this;
     required(): this;
     lowercase(): this;
 }
@@ -24,7 +24,7 @@ const customStringJoi: ICustomStringJoi = Joi.extend( (joi) => ({
     name: 'customValidation',
     language: {
         adultCheck: 'Age must be over 18',
-        filterBadWords: 'Filter bad words'
+        generateRandomName: 'Generates random name'
     },
     rules: [
         {
@@ -38,13 +38,12 @@ const customStringJoi: ICustomStringJoi = Joi.extend( (joi) => ({
             }
         },
         {
-            name: 'filterBadWords',
+            name: 'generateRandomName',
             validate(this: ICustomStringJoi, params, value, state, options) {
-                const filterWords = new FilterWords();
-                if (filterWords.filterBadWords(value)) {
-                    return this.createError('customValidation.filterBadWords', {v : value}, state, options);
+                if (!value) {
+                    return uniqid('Guest_');
                 }
-                return value;
+                return uniqid(`${value}_`);
             }
         },
     ]

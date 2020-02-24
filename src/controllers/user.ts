@@ -3,80 +3,6 @@ import mongoose from 'mongoose';
 import UserSchema from '../schemas/user';
 class UserController {
     public setPreLoginUserRoutes = async (fastify) => {
-        fastify.get('/users/:userId/availability', UserSchema.availability , async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                return reply.send({
-                    success: !await fastify.userIdAvailability(request.params.userId, true)
-                });
-            } catch (error) {
-                reply.status(500);
-                return reply.send({
-                    error,
-                    message: error.message ? error.message : 'error happened'
-
-                });
-
-            }
-        });
-        fastify.post('/user', UserSchema.post , async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                request.body.currentLocation = await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point');
-                request.body.defaultLocation = request.body.currentLocation;
-                // add email verification
-                if (request.body.phoneNumber && !await  fastify.verifyMobileOTP(request.body.phoneNumber, request.body.otp)) {
-                    return reply.send({
-                        success: false
-                    });
-                }
-                request.body.lastUsedDateTime = Date.now();
-                await fastify.insertUser(request.body, false);
-                request.session.user = {
-                    userId: request.body.userId
-                };
-                // save sessionId in redis
-                return reply.send({
-                    success: true
-                });
-            } catch (error) {
-                reply.status(500);
-                return reply.send({
-                    error,
-                    message: error.message ? error.message : 'error happened'
-
-                });
-
-            }
-        });
-        fastify.get('/users/forgot-user-id', UserSchema.forgotUserId , async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                const userData = await fastify.findUserIdByEmail(request.query.email);
-                if (userData) {
-                    return reply.send({
-                            userId: userData._id
-                        });
-                }
-                return reply
-                    .status(404)
-                    .send();
-            } catch (error) {
-                reply.status(500);
-                return reply.send({
-                    error,
-                    message: error.message ? error.message : 'error happened'
-
-                });
-
-            }
-        });
         fastify.get('/user/generate-otp', UserSchema.generateOTP, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
@@ -153,11 +79,12 @@ class UserController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                if (await fastify.login(request.body)) {
+                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+                    request.body.lastUsedDateTime = Date.now();
+                    await fastify.insertUser(request.body, false);
                     request.session.user = {
                         userId: request.body.userId
                     };
-                    await fastify.updateUsedDateTime(request.body.userId);
                     // save sessionId in redis
                     return reply.send({
                         success: true
@@ -169,35 +96,6 @@ class UserController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error,
-                    message: error.message ? error.message : 'error happened'
-
-                });
-
-            }
-        });
-        fastify.put('/user/change-password', UserSchema.changePassword, async (request, reply) => {
-            if (request.validationError || (!request.session.user && !request.session.phoneNumber)) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                const filterBy: any = {};
-                if (request.session.phoneNumber) {
-                    filterBy.phoneNumber = request.session.phoneNumber;
-                }
-                else {
-                    filterBy._id = request.session.user.userId;
-                }
-                await fastify.updatePassword(filterBy, request.body.password, request.session.user.isAdmin);
-                await request.sessionStore.destroy(`${request.session.sessionId}`, (err) => {
-                    request.session = undefined;
-                    reply.send({
-                        success: true
-                    });
-                });
-            } catch (error) {
-                reply.status(500);
-                reply.send({
                     error,
                     message: error.message ? error.message : 'error happened'
 
@@ -234,12 +132,6 @@ class UserController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-
-                const { phoneNumber, email} = request.body.newValues;
-                const { mobileOtp, emailOtp} = request.body.otp;
-                if (phoneNumber) {
-                    await fastify.verifyMobileOTP(phoneNumber, mobileOtp);
-                }
                 await fastify.updateProfile(request.session.user.userId, request.body.newValues);
                 return reply.status(200).send({
                     success: true

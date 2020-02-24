@@ -4,7 +4,6 @@ import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';
 import User from '../models/user';
 import UserTask from '../models/user-task';
-import Encryption from '../util/encryption';
 
 enum OTP_TYPES_ENUM {
     SEND_OTP,
@@ -14,13 +13,28 @@ enum OTP_TYPES_ENUM {
 
 const userPlugin =  async (fastify, opts, next) => {
     const insertUser = async (requestData, isAdmin) => {
-        requestData.dateOfBirth =  moment(requestData.dateOfBirth, 'DD-MM-YYYY');
         requestData._id = requestData.userId;
         try {
             if (isAdmin) {
-                return await new Admin(requestData).save();
+                return await Admin.update(
+                    {_id: requestData._id},
+                    { $setOnInsert: requestData },
+                    { $set: {
+                            lastUsedDateTime: requestData.lastUsedDateTime
+                        }
+                    },
+                    { upsert: true }
+                );
             }
-            await new User(requestData).save();
+            return await User.update(
+                {_id: requestData._id},
+                { $setOnInsert: requestData },
+                { $set: {
+                        lastUsedDateTime: requestData.lastUsedDateTime
+                    }
+                },
+                { upsert: true }
+            );
         } catch (e) {
             throw e;
         }
@@ -32,29 +46,6 @@ const userPlugin =  async (fastify, opts, next) => {
             } else {
                 return await User.findById(userId, 'name phoneNumber email dateOfBirth avatar gender defaultLocation rewards');
             }
-        } catch (e) {
-            throw e;
-        }
-    };
-    const findUserIdByEmail = async (email) => {
-        try {
-            return await User.findOne({ email }, '_id');
-        } catch (e) {
-            throw e;
-        }
-    };
-    const login = async (requestData, isAdmin) => {
-        try {
-            let userRecord;
-            if (isAdmin) {
-                userRecord = await Admin.findById(requestData.userId, 'password');
-            } else {
-                userRecord = await User.findById(requestData.userId, 'password');
-            }
-            if (!userRecord) {
-                return false;
-            }
-            return await Encryption.compare(requestData.password, userRecord.password);
         } catch (e) {
             throw e;
         }
@@ -297,6 +288,8 @@ const userPlugin =  async (fastify, opts, next) => {
                 $limit: 10
             }, {
                 $project: {
+                    _id: -1,
+                    name: 1,
                     rewards: 1,
                     avatar: 1,
                 }
@@ -314,6 +307,7 @@ const userPlugin =  async (fastify, opts, next) => {
                             $push: {
                                 _id: '$_id',
                                 avatar: 'avatar',
+                                name: 'name',
                                 rewards: '$rewards'
                             }
                         }
@@ -345,9 +339,7 @@ const userPlugin =  async (fastify, opts, next) => {
         }
     };
     fastify.decorate('insertUser', insertUser);
-    fastify.decorate('login', login);
     fastify.decorate('userIdAvailability', userIdAvailability);
-    fastify.decorate('findUserIdByEmail', findUserIdByEmail);
     fastify.decorate('updateProfile', updateProfile);
     fastify.decorate('generateMobileOTP', generateMobileOTP);
     fastify.decorate('verifyMobileOTP', verifyMobileOTP);
