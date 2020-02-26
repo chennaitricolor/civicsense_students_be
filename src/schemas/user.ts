@@ -7,18 +7,12 @@ const userSchema = {
     post: {
         schema: {
             body: Joi.object().keys({
-                name: customStringJoi.customValidation().filterBadWords().required(),
-                dateOfBirth: Joi.date().format('DD-MM-YYYY').raw().required(),
-                phoneNumber: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
-                    .when('dateOfBirth', {
-                        is: customStringJoi.customValidation().adultCheck(),
-                        then: Joi.optional(),
-                        otherwise: Joi.required()
-                    }),
-                email: Joi.string().lowercase().email().required(),
+                name: customStringJoi.customValidation().generateRandomName(),
+                dateOfBirth: Joi.date().format('DD-MM-YYYY').raw(),
+                email: Joi.string().lowercase().email(),
                 gender: Joi.string().valid('male', 'female', 'other'),
-                userId: customStringJoi.customValidation().filterBadWords().lowercase().required(),
-                password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/).required(),
+                userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
+                    .required(),
                 avatar: Joi.number().min(1).max(8).default(1),
                 otp: Joi.number().max(9999).required(),
                 currentLocation: Joi.object().keys({
@@ -34,7 +28,8 @@ const userSchema = {
     availability: {
         schema: {
             params: {
-                userId: Joi.string().lowercase().required(),
+                userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
+                    .required(),
             }
         },
         schemaCompiler: (schema) => (data) => {
@@ -73,22 +68,12 @@ const userSchema = {
         },
         attachValidation: true
     },
-    forgotUserId: {
-        schema: {
-            querystring: Joi.object().keys({
-                email: Joi.string().lowercase().email().required(),
-            }).required()
-        },
-        schemaCompiler: (schema) => (data) => {
-            return Joi.validate(data, schema);
-        },
-        attachValidation: true
-    },
     login: {
         schema: {
             body: Joi.object().keys({
-                userId: Joi.string().lowercase().required(),
-                password: Joi.string().required()
+                userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
+                    .required(),
+                otp: Joi.number().max(9999).required(),
             }).required()
 
         },
@@ -101,14 +86,14 @@ const userSchema = {
         schema: {
             body: Joi.object().keys({
                 newValues: Joi.object().keys({
-                    phoneNumber: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true}),
+                    name: customStringJoi.customValidation().generateRandomName(),
+                    dateOfBirth: Joi.date().format('DD-MM-YYYY').raw(),
                     email: Joi.string().lowercase().email(),
+                    gender: Joi.string().valid('male', 'female', 'other'),
                     avatar: Joi.number().min(1).max(8).default(1),
+                    otp: Joi.number().max(9999).required(),
+                    phoneNumber: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true}),
                 }).min(1).required(),
-                otp: Joi.object().keys({
-                    mobileOtp: Joi.number().max(9999),
-                    emailOtp: Joi.number().max(9999)
-                }).default({})
             }).required()
         },
         schemaCompiler: (schema) => (data) => {

@@ -24,13 +24,11 @@ const adminSchema = {
     add: {
         schema: {
             body: Joi.object().keys({
-                name: customStringJoi.customValidation().filterBadWords().required(),
-                dateOfBirth: Joi.date().format('DD-MM-YYYY').raw().required(),
-                phoneNumber: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true}).required(),
-                email: Joi.string().lowercase().email().required(),
+                name: customStringJoi.customValidation().generateRandomName(),
+                dateOfBirth: Joi.date().format('DD-MM-YYYY').raw(),
+                email: Joi.string().lowercase().email(),
                 gender: Joi.string().valid('male', 'female', 'other'),
-                userId: customStringJoi.customValidation().filterBadWords().lowercase().required(),
-                password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/).required(),
+                userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true}).required(),
             }).required()
         },
         schemaCompiler: (schema) => (data) => {
