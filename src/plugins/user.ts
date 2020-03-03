@@ -13,25 +13,27 @@ enum OTP_TYPES_ENUM {
 
 const userPlugin =  async (fastify, opts, next) => {
     const insertUser = async (requestData, isAdmin) => {
-        requestData._id = requestData.userId;
-        try {
+    const { lastUsedDateTime, ...dataObject} = requestData;
+    dataObject._id = dataObject.userId;
+    try {
             if (isAdmin) {
                 return await Admin.update(
-                    {_id: requestData._id},
-                    { $setOnInsert: requestData },
+                    {_id: dataObject._id},
                     { $set: {
-                            lastUsedDateTime: requestData.lastUsedDateTime
-                        }
+                            lastUsedDateTime
+                        },
+                        $setOnInsert: dataObject ,
                     },
                     { upsert: true }
                 );
             }
             return await User.update(
-                {_id: requestData._id},
-                { $setOnInsert: requestData },
+                {_id: dataObject._id},
+
                 { $set: {
-                        lastUsedDateTime: requestData.lastUsedDateTime
-                    }
+                        lastUsedDateTime
+                    },
+                     $setOnInsert: dataObject ,
                 },
                 { upsert: true }
             );

@@ -74,6 +74,7 @@ const userSchema = {
                 userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
                     .required(),
                 otp: Joi.number().max(9999).required(),
+                name: customStringJoi.customValidation().generateRandomName(),
             }).required()
 
         },

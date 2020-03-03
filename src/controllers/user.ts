@@ -74,36 +74,43 @@ class UserController {
 
             }
         });
-        fastify.post('/user/login', UserSchema.login, async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
-                    request.body.lastUsedDateTime = Date.now();
-                    await fastify.insertUser(request.body, false);
-                    request.session.user = {
-                        userId: request.body.userId
-                    };
-                    // save sessionId in redis
-                    return reply.send({
-                        success: true
-                    });
-                }
-                return reply.send({
-                    success: false
-                });
-            } catch (error) {
-                reply.status(500);
-                return reply.send({
-                    error,
-                    message: error.message ? error.message : 'error happened'
-
-                });
-
-            }
+        fastify.post('/user/login', UserSchema.login, (request, reply) => {
+            this.loginHandler(fastify, request, reply);
+        });
+        fastify.post('/user/signup', UserSchema.login, (request, reply) => {
+            this.loginHandler(fastify, request, reply);
         });
     };
+    public loginHandler = async (fastify, request, reply) => {
+        if (request.validationError) {
+            return reply.code(400).send(request.validationError);
+        }
+        try {
+            if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+                request.body.lastUsedDateTime = Date.now();
+                await fastify.insertUser(request.body, false);
+                request.session.user = {
+                    userId: request.body.userId
+                };
+                // save sessionId in redis
+                return reply.send({
+                    success: true
+                });
+            }
+            return reply.send({
+                success: false
+            });
+        } catch (error) {
+            reply.status(500);
+            return reply.send({
+                error,
+                message: error.message ? error.message : 'error happened'
+
+            });
+
+        }
+    };
+
     public setPostLoginUserRoutes = async (fastify) => {
         fastify.get('/user', async (request, reply) => {
             if (request.validationError) {
