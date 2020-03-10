@@ -74,11 +74,13 @@ class UserController {
 
             }
         });
-        fastify.post('/user/login', UserSchema.login, (request, reply) => {
-            this.loginHandler(fastify, request, reply);
+        fastify.post('/user/login', UserSchema.login, async (request, reply) => {
+            await this.loginHandler(fastify, request, reply);
         });
-        fastify.post('/user/signup', UserSchema.login, (request, reply) => {
-            this.loginHandler(fastify, request, reply);
+        fastify.post('/user/signup', UserSchema.signup, async (request, reply) => {
+            request.body.currentLocation = await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point');
+            request.body.defaultLocation = request.body.currentLocation;
+            await this.loginHandler(fastify, request, reply);
         });
     };
     public loginHandler = async (fastify, request, reply) => {

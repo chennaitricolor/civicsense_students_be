@@ -74,7 +74,25 @@ const userSchema = {
                 userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
                     .required(),
                 otp: Joi.number().max(9999).required(),
+            }).required()
+
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
+
+    signup: {
+        schema: {
+            body: Joi.object().keys({
+                userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
+                    .required(),
+                otp: Joi.number().max(9999).required(),
                 name: customStringJoi.customValidation().generateRandomName(),
+                currentLocation: Joi.object().keys({
+                    coordinates: Joi.array().items(Joi.number()),
+                }).required()
             }).required()
 
         },
