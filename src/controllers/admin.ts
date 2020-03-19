@@ -202,12 +202,12 @@ class AdminController {
                 if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
                     await fastify.insertUser(request.body, true);
                     request.session.user = {
-                        userId: request.body.userId
+                        userId: request.body.userId,
+                        isAdmin: true
                     };
                     // save sessionId in redis
                     return reply.send({
-                        success: true,
-                        isAdmin: true
+                        success: true
                     });
                 }
                 return reply.send({
