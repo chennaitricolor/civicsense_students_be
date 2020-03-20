@@ -1,5 +1,6 @@
 'use strict';
 import mongoose from 'mongoose';
+import Root from '../content/root';
 import UserSchema from '../schemas/user';
 class UserController {
     public setPreLoginUserRoutes = async (fastify) => {
@@ -27,6 +28,9 @@ class UserController {
                 });
 
             }
+        });
+        fastify.get('/', {}, async (request, reply) => {
+            reply.send(Root);
         });
         fastify.get('/user/verify-otp', UserSchema.generateOTP, async (request, reply) => {
             if (request.validationError) {
