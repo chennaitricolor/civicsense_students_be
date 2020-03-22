@@ -1,4 +1,3 @@
-import moment from 'moment';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';

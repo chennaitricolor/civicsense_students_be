@@ -7,13 +7,13 @@ import UserSchema from '../schemas/user';
 
 class AdminController {
     public setPostLoginAdminRoutes = async (fastify) => {
-        fastify.get('/campaigns/live', {}, async (request, reply) => {
+        fastify.get('/campaigns', AdminSchema.getCampaigns, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
             }
             try {
                 return reply.status(200).send({
-                    campaigns: await fastify.getLiveCampaigns()
+                    campaigns: await fastify.getLiveCampaigns(request.query.live)
                 });
             } catch (error) {
                 reply.status(500);
@@ -21,6 +21,48 @@ class AdminController {
                     error ,
                     message: error.message ? error.message : 'error happened'
 
+                });
+
+            }
+        });
+        fastify.get('/reports', AdminSchema.getReports, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                return reply.status(200).send(await fastify.getReportDetails(request.query));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
+                });
+
+            }
+        });
+        fastify.put('/campaigns/:campaignId', AdminSchema.addCampaigns, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                return reply.status(200).send(await fastify.updateCampaign(request.body, request.params.campaignId));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
+                });
+
+            }
+        });
+        fastify.delete('/campaigns/:campaignId', {}, async (request, reply) => {
+            try {
+                return reply.status(200).send(await fastify.deleteCampaign(request.params.campaignId));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
                 });
 
             }
@@ -69,7 +111,6 @@ class AdminController {
 
             }
         });
-
         fastify.get('/location', {}, async (request, reply) => {
             try {
                 return reply.status(200).send(await fastify.getLocation());
@@ -199,7 +240,7 @@ class AdminController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp) && fastify.findAdmin(request.body.userId)) {
                     await fastify.insertUser(request.body, true);
                     request.session.user = {
                         userId: request.body.userId,
@@ -210,7 +251,7 @@ class AdminController {
                         success: true
                     });
                 }
-                return reply.send({
+                return reply.status(401).send({
                     success: false
                 });
             } catch (error) {

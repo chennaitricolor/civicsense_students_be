@@ -10,7 +10,7 @@ class UserController {
             }
             try {
 
-                const { phoneNumber, email} = request.query;
+                const { phoneNumber } = request.query;
                 if (phoneNumber && !await fastify.generateMobileOTP(phoneNumber)) {
                     return reply.status(200).send({
                         success: false
@@ -92,7 +92,7 @@ class UserController {
             return reply.code(400).send(request.validationError);
         }
         try {
-            if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+            if (await fastify.verifyMobileOTP(request.body.userId, request.body.otp) && await fastify.findAdmin(request.body.userId)) {
                 request.body.lastUsedDateTime = Date.now();
                 await fastify.insertUser(request.body, false);
                 request.session.user = {
@@ -103,7 +103,7 @@ class UserController {
                     success: true
                 });
             }
-            return reply.send({
+            return reply.status(401).send({
                 success: false
             });
         } catch (error) {

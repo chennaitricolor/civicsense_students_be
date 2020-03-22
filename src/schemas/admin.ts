@@ -49,6 +49,17 @@ const adminSchema = {
         },
         attachValidation: true
     },
+    getCampaigns: {
+        schema: {
+            queryString: Joi.object().keys({
+                live: Joi.boolean().default(false)
+            })
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
     getCampaignDetails: {
         schema: {
             params: Joi.object().keys({
@@ -57,6 +68,20 @@ const adminSchema = {
             queryString: Joi.object().keys({
                 lastRecordCreatedAt: Joi.date()
             })
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
+    getReports: {
+        schema: {
+            queryString: Joi.object().keys({
+                lastRecordCreatedAt: Joi.date(),
+                userId: Joi.string(),
+                status: Joi.string().valid('ACCEPTED', 'REJECTED', 'SUBMITTED'),
+                campaignId: Joi.objectId()
+            }).optional()
         },
         schemaCompiler: (schema) => (data) => {
             return Joi.validate(data, schema);
