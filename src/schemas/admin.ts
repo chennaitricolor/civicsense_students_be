@@ -80,6 +80,7 @@ const adminSchema = {
                 lastRecordCreatedAt: Joi.date(),
                 userId: Joi.string(),
                 status: Joi.string().valid('ACCEPTED', 'REJECTED', 'SUBMITTED'),
+                locationNm: Joi.string(),
                 campaignId: Joi.objectId()
             }).optional()
         },

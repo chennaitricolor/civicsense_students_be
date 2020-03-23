@@ -68,7 +68,7 @@ const adminPlugin =  async (fastify, opts, next) => {
             }
             return  UserTaskSchema.find({
                 ...filterQuery
-            }, 'locationNm photoId createdAt status campaignId userId name').limit(10).sort('createdAt');
+            }, 'locationNm photoId createdAt status campaignId userId name location').limit(10).sort('createdAt');
         } catch (e) {
             throw e;
         }
