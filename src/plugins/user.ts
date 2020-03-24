@@ -97,8 +97,7 @@ const userPlugin =  async (fastify, opts, next) => {
                     location:
                         { $near :
                                 {
-                                    $geometry: { type: 'Point',  coordinates: data.location.coordinates },
-                                    $maxDistance: 100
+                                    $geometry: { type: 'Point',  coordinates: data.location.coordinates }
                                 }
                         },
                     campaignId: data.campaignId
