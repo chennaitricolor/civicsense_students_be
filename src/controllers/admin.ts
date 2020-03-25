@@ -240,7 +240,7 @@ class AdminController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp) && fastify.findAdmin(request.body.userId)) {
+                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp) && await fastify.findAdmin(request.body.userId)) {
                     await fastify.insertUser(request.body, true);
                     request.session.user = {
                         userId: request.body.userId,
