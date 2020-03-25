@@ -76,7 +76,6 @@
     "airbrake-js": "^1.6.6",
     "aws-sdk": "^2.574.0",
     "bad-words": "^3.0.3",
-    "bcrypt": "^3.0.0",
     "cross-fetch": "^3.0.0",
     "fast-json-stringify": "^1.11.0",
     "fastify": "^2.10.0",
