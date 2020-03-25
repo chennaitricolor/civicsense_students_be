@@ -2,3 +2,7 @@ import _ from 'lodash';
 export const mergeIgnoringUndefined = (source: object, target: object): object => {
     return _.mergeWith({}, source, target, (a, b) => b === undefined ? a : undefined);
 };
+
+export const isString  = (obj) => {
+    return (Object.prototype.toString.call(obj) === '[object String]');
+};

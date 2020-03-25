@@ -289,7 +289,7 @@ const userPlugin =  async (fastify, opts, next) => {
             }, {
                 $project: {
                     _id: -1,
-                    name: 1,
+                    name: {$arrayElemAt: [{$split: ['$name' , '_']}, 0]},
                     rewards: 1,
                     avatar: 1,
                 }
