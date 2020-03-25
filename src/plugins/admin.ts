@@ -48,6 +48,7 @@ const adminPlugin =  async (fastify, opts, next) => {
 
     const getReportDetails = async (filterObject) => {
         try {
+            let limit = 10;
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {};
             if (filterObject.status) {
@@ -74,7 +75,7 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $ne: ['$campaign.delete', true]
                 }]
             } : true ;
-            return await UserTask.aggregate([
+            const aggregatePipeline: any = [
                 { $match: filterQuery },
                 { $lookup: {
                         from: 'admin.campaigns',
@@ -91,9 +92,14 @@ const adminPlugin =  async (fastify, opts, next) => {
                         }
                     }
                 },
-                { $limit: 10 },
                 { $sort : { createdAt : 1 } }
-            ]);
+            ];
+            const applyLimit =  filterObject.applyLimit ? filterObject.applyLimit === 'true' : false;
+            if (applyLimit) {
+                limit = parseInt(filterObject.limit, 10) || limit;
+                aggregatePipeline.splice(-1, 0, { $limit: limit });
+            }
+            return await UserTask.aggregate(aggregatePipeline);
         } catch (e) {
             throw e;
         }
