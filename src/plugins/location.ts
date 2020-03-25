@@ -17,7 +17,7 @@ const LocationPlugin = async (fastify, opts, next) => {
         }
     };
 
-    const getZoneFromLocation = async (coordinates, type) => {
+    const getZoneFromLocation = async (coordinates, type, zoneid= true) => {
         try {
             const zoneArray = await Location.find({
                 location: {
@@ -30,7 +30,12 @@ const LocationPlugin = async (fastify, opts, next) => {
                 }
             });
             if (zoneArray[0]) {
-                return zoneArray[0]._id;
+                if (zoneid) {
+                    return zoneArray[0]._id;
+                } else {
+                    return zoneArray[0].locationNm;
+                }
+
             } else {
                 throw new Error('App not supported in this location');
             }

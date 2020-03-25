@@ -10,7 +10,8 @@ const AdminCampaignSchema = new mongoose.Schema({
     rewards:  { type: Number, required: true },
     locationIds: [mongoose.Types.ObjectId],
     noOfEntries: {type: Number, default: 0},
-    createdBy: { type: Number, ref: admin}
+    createdBy: { type: Number, ref: admin},
+    delete: {type: Boolean},
 }, {
     timestamps: true
 });

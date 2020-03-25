@@ -48,6 +48,7 @@ const adminPlugin =  async (fastify, opts, next) => {
 
     const getReportDetails = async (filterObject) => {
         try {
+            filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {};
             if (filterObject.status) {
                 filterQuery.status = filterObject.status;
@@ -66,42 +67,39 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $gt: new Date(filterObject.lastRecordCreatedAt)
                 };
             }
-            return await AdminCampaign.aggregate([
-                {...filterObject.live && {
-                    $match: {
-                        endDate: {$gte: new Date()},
-                        delete: {$ne: true},
-                    }
-                }},
-                {
-                    $lookup: {
-                        from: 'user.task',
-                        let: { campaignId: '$_id' },
-                        pipeline: [{
-                            $match: {
-                                $expr: {$eq: ['$campaignId', '$$campaignId']},
-                                ...filterQuery
-                            }
-                        }],
+            const redactIf = filterObject.live ? {
+                $and: [{
+                    $gte: ['$campaign.endDate', new Date()]
+                }, {
+                    $ne: ['$campaign.delete', true]
+                }]
+            } : true ;
+            return await UserTask.aggregate([
+                { $match: filterQuery },
+                { $lookup: {
+                        from: 'admin.campaigns',
+                        localField: 'campaignId',
+                        foreignField: '_id',
                         as: 'campaign'
-                    },
-
-                }
+                    }},
+                { $unwind: '$campaign' },
+                { $redact: {
+                        $cond : {
+                            if: redactIf,
+                            then: '$$KEEP',
+                            else: '$$PRUNE'
+                        }
+                    }
+                },
+                { $limit: 10 },
+                { $sort : { createdAt : 1 } }
             ]);
-
-            // UserTask.find(filterQuery)
-            //     .populate('campaignId', {
-            //         select: 'profile.firstname',
-            //         match: { _id: {$ne: user_id}}
-            //     })
-            // return  UserTask.find({
-            //     ...filterQuery
-            // }, 'locationNm photoId createdAt status campaignId userId name location').limit(10).sort('createdAt');
         } catch (e) {
             throw e;
         }
     };
     const getLiveCampaigns = async (live) => {
+        live =  live ? live === 'true' : false;
         try {
             const today = new Date();
             return await AdminCampaign.aggregate(

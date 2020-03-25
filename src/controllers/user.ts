@@ -226,7 +226,7 @@ class UserController {
             }
             try {
                 request.body.location.type = 'Point' ;
-
+                request.body.locationNm = await fastify.getZoneFromLocation(request.body.location.coordinates, 'Point', false);
                 // const duplicateRecords = await fastify.findDuplicateLocationData(request.body);
                 // if (Array.isArray(duplicateRecords) && duplicateRecords.length) {
                 //     return reply.status(200).send({message: 'duplicate location', success: false});
