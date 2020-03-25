@@ -66,6 +66,15 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $gt: new Date(filterObject.lastRecordCreatedAt)
                 };
             }
+            if (filterObject.live) {
+                const today = new Date();
+                filterQuery.endDate = {
+                    $gte: today
+                };
+                filterQuery.delete = {
+                    $ne: true
+                };
+            }
             return  UserTaskSchema.find({
                 ...filterQuery
             }, 'locationNm photoId createdAt status campaignId userId name location').limit(10).sort('createdAt');
