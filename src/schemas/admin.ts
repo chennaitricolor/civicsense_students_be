@@ -81,7 +81,8 @@ const adminSchema = {
                 userId: Joi.string(),
                 status: Joi.string().valid('ACCEPTED', 'REJECTED', 'SUBMITTED'),
                 locationNm: Joi.string(),
-                campaignId: Joi.objectId()
+                campaignId: Joi.objectId(),
+                live: Joi.boolean().default(false)
             }).optional()
         },
         schemaCompiler: (schema) => (data) => {

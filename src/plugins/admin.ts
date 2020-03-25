@@ -2,7 +2,7 @@ import moment from 'moment';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';
-import UserTaskSchema from '../models/user-task';
+import UserTask from '../models/user-task';
 
 const adminPlugin =  async (fastify, opts, next) => {
 
@@ -66,9 +66,37 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $gt: new Date(filterObject.lastRecordCreatedAt)
                 };
             }
-            return  UserTaskSchema.find({
-                ...filterQuery
-            }, 'locationNm photoId createdAt status campaignId userId name location').limit(10).sort('createdAt');
+            return await AdminCampaign.aggregate([
+                {...filterObject.live && {
+                    $match: {
+                        endDate: {$gte: new Date()},
+                        delete: {$ne: true},
+                    }
+                }},
+                {
+                    $lookup: {
+                        from: 'user.task',
+                        let: { campaignId: '$_id' },
+                        pipeline: [{
+                            $match: {
+                                $expr: {$eq: ['$campaignId', '$$campaignId']},
+                                ...filterQuery
+                            }
+                        }],
+                        as: 'campaign'
+                    },
+
+                }
+            ]);
+
+            // UserTask.find(filterQuery)
+            //     .populate('campaignId', {
+            //         select: 'profile.firstname',
+            //         match: { _id: {$ne: user_id}}
+            //     })
+            // return  UserTask.find({
+            //     ...filterQuery
+            // }, 'locationNm photoId createdAt status campaignId userId name location').limit(10).sort('createdAt');
         } catch (e) {
             throw e;
         }
@@ -126,7 +154,7 @@ const adminPlugin =  async (fastify, opts, next) => {
             } : {};
             return {
                 campaignDetails: await AdminCampaign.findById(campaignId, '-createdAt -locationIds -updatedAt'),
-                entries: await UserTaskSchema.find({
+                entries: await UserTask.find({
                     campaignId,
                     status: 'SUBMITTED',
                     ...findFilterForpagination
@@ -145,7 +173,7 @@ const adminPlugin =  async (fastify, opts, next) => {
     };
     const updateTask = async (submissionId, data) => {
         try {
-            return await UserTaskSchema.findOneAndUpdate({
+            return await UserTask.findOneAndUpdate({
                 _id: submissionId,
                 status: 'SUBMITTED'
             }, data, {
