@@ -92,7 +92,7 @@ class UserController {
             return reply.code(400).send(request.validationError);
         }
         try {
-            if (await fastify.verifyMobileOTP(request.body.userId, request.body.otp) && await fastify.findAdmin(request.body.userId)) {
+            if (await fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
                 request.body.lastUsedDateTime = Date.now();
                 await fastify.insertUser(request.body, false);
                 request.session.user = {
