@@ -227,10 +227,10 @@ class UserController {
             try {
                 request.body.location.type = 'Point' ;
 
-                const duplicateRecords = await fastify.findDuplicateLocationData(request.body);
-                if (Array.isArray(duplicateRecords) && duplicateRecords.length) {
-                    return reply.status(200).send({message: 'duplicate location', success: false});
-                }
+                // const duplicateRecords = await fastify.findDuplicateLocationData(request.body);
+                // if (Array.isArray(duplicateRecords) && duplicateRecords.length) {
+                //     return reply.status(200).send({message: 'duplicate location', success: false});
+                // }
                 const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
                 await fastify.awsPlugin.uploadFile(file, fileKey, false);
                 request.body.photoId = fileKey;
