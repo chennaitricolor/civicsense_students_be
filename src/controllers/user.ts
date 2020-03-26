@@ -2,7 +2,6 @@
 import mongoose from 'mongoose';
 import Root from '../content/root';
 import UserSchema from '../schemas/user';
-import { isString } from '../util/helper';
 class UserController {
     public setPreLoginUserRoutes = async (fastify) => {
         fastify.get('/user/generate-otp', UserSchema.generateOTP, async (request, reply) => {
@@ -125,7 +124,6 @@ class UserController {
             }
             try {
                 const userData = await fastify.userIdAvailability(request.session.user.userId, false);
-                userData.name = isString(userData.name) ? userData.name.split('_')[0] : 'Guest';
                 if (userData) {
                     return reply.send(
                         userData
