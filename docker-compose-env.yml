@@ -1,6 +1,7 @@
 version: "3.7"
 
 networks:
+  default:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}
@@ -9,7 +10,7 @@ services:
   redis:
     image: redis
     networks:
-      - traefik
+      - default
 
   civicsense_students_be:
     image: ${REGISTRY}/${IMAGETAG}:${GO_REVISION}
@@ -31,6 +32,7 @@ services:
       OTP_TEMPLATE_ID: ${OTP_TEMPLATE_ID}
     networks:
       - traefik
+      - default
     deploy:
       replicas: ${NUMBER_REPLICAS}
       update_config:
