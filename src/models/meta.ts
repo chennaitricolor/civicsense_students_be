@@ -16,7 +16,7 @@ const MetaSchema = new mongoose.Schema({
         phone: {type: Number},
     },
     meta: {type: String},
-    version: {type: mongoose.Decimal128}
+    version: {type: String, required: true}
 }, {
     timestamps: true
 });
