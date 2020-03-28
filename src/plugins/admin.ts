@@ -1,4 +1,5 @@
 import moment from 'moment';
+import mongoose from 'mongoose';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';
@@ -61,7 +62,7 @@ const adminPlugin =  async (fastify, opts, next) => {
                 filterQuery.userId = filterObject.userId;
             }
             if (filterObject.campaignId) {
-                filterQuery.campaignId = filterObject.campaignId;
+                filterQuery.campaignId = mongoose.Types.ObjectId(filterObject.campaignId);
             }
             if (filterObject.lastRecordCreatedAt) {
                 filterQuery.createdAt = {
