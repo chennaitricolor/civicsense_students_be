@@ -30,7 +30,7 @@ class UserController {
             }
         });
         fastify.get('/', {}, async (request, reply) => {
-            reply.send(Root);
+            reply.status(200).send(await fastify.getStatic());
         });
         fastify.get('/user/verify-otp', UserSchema.generateOTP, async (request, reply) => {
             if (request.validationError) {

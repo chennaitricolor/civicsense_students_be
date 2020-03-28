@@ -31,6 +31,7 @@ declare module 'fastify' {
         getLocation: () => Promise<object>;
         getReportDetails: (filterObject: object) => Promise<object>;
         getRewards: () => Promise<object>;
+        getStatic: () => Promise<object>;
         getUserTask: (taskId: string) => Promise<object>;
         getUserTasks: (userId: number, data: object) => Promise<object>;
         getZoneFromLocation: (coordinates: any, type: string) => Promise<object>;

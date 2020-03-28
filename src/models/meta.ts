@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 
 const MetaSchema = new mongoose.Schema({
     _id : {type: Number, required: true},
-    howToPlay: {type: String, required: true},
+    links: {
+        howToPlay: {type: String, required: true},
+    },
     termsAndCondition: {type: String, required: true},
     contributors: [{
         name: {type: String, required: true},
@@ -14,6 +16,7 @@ const MetaSchema = new mongoose.Schema({
         phone: {type: Number},
     },
     meta: {type: String},
+    version: {type: mongoose.Decimal128}
 }, {
     timestamps: true
 });

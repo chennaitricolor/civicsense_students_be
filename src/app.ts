@@ -18,6 +18,7 @@ import config from './plugins/config';
 import dbConnectorPlugin from './plugins/dbConnector';
 import httpClientPlugin from './plugins/httpClient';
 import locationPlugin from './plugins/location';
+import metaPlugin from './plugins/meta';
 import userPlugin from './plugins/user';
 const RedisStore = redisConnect(fastifySession);
 export class FastifyPluginRegister  {
@@ -54,6 +55,7 @@ export class FastifyPluginRegister  {
       fastify.register(fastifyPlugin(authenticatorSession));
       fastify.register(fastifyPlugin(dbConnectorPlugin));
       fastify.register(fastifyPlugin(awsPlugin));
+      fastify.register(fastifyPlugin(metaPlugin));
 
       // service without auth
       fastify.register(HealthCheck, { prefix:  contextPath});

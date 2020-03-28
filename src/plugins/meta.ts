@@ -1,15 +1,24 @@
 import Meta from '../models/meta';
 
-const LocationPlugin = async (fastify, opts, next) => {
+const MetaPlugin = async (fastify, opts, next) => {
 
-    const getLocation = async () => {
+    const getStatic = async () => {
         try {
-            return await Meta.find({}, '-_id');
+            return await Meta.findOne({}, '-_id');
         } catch (e) {
             throw e;
         }
     };
-    fastify.decorate('getLocation', getLocation);
+
+    const putStatic = async (data) => {
+        try {
+            return await Meta.findOneAndUpdate({}, data, { new: true} );
+        } catch (e) {
+            throw e;
+        }
+    };
+    fastify.decorate('getStatic', getStatic);
+    fastify.decorate('putStatic', putStatic);
     next();
 };
-export default LocationPlugin;
+export default MetaPlugin;
