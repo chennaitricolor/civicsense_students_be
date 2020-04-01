@@ -34,10 +34,8 @@ class UserController {
         });
 
         fastify.get('/download',  (req, reply) => {
-            // reply.status(200).send('dfsdf');
             try {
-                console.log('in')
-                reply.sendFile('csr-prod V10.apk'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
+                reply.sendFile('csr-prod V10.apk');
             } catch (e) {
                 console.log(e);
             }
