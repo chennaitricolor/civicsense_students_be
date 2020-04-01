@@ -234,6 +234,9 @@ const userPlugin =  async (fastify, opts, next) => {
                 startDate: {
                     $lte: new Date(),
                 },
+                delete: {
+                    $ne: true
+                },
                 locationIds: currentLocation
             }, 'startDate endDate campaignName rules description rewards');
         } catch (e) {
