@@ -57,6 +57,17 @@ const userSchema = {
         },
         attachValidation: true
     },
+    valid: {
+        schema: {
+            querystring: Joi.object().keys({
+                coordinates: Joi.array().items(Joi.number())
+            }).required()
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
     addDevice: {
         schema: {
             body: Joi.object().keys({

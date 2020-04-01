@@ -1,9 +1,24 @@
 'use strict';
 import mongoose from 'mongoose';
-import Root from '../content/root';
 import UserSchema from '../schemas/user';
 class UserController {
     public setPreLoginUserRoutes = async (fastify) => {
+        fastify.get('/user/valid', UserSchema.valid, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                await fastify.getZoneFromLocation(request.query.coordinates, 'Point', false);
+                return reply.status(200).send({
+                    success: true
+                });
+            } catch (error) {
+                return reply.status(401).send({
+                    message: 'App not supported'
+                });
+
+            }
+        });
         fastify.get('/user/generate-otp', UserSchema.generateOTP, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
