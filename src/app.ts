@@ -6,6 +6,7 @@ import fastifyHelmet from 'fastify-helmet';
 import fastifyMultipart from 'fastify-multipart';
 import fastifyPlugin from 'fastify-plugin';
 import fastifySession from 'fastify-session';
+import path from 'path';
 import redis from 'redis';
 import { PostLoginAdminController, PreLoginAdminController } from './controllers/admin';
 import HealthCheck from './controllers/health';
@@ -45,6 +46,9 @@ export class FastifyPluginRegister  {
       });
       fastify.register(fastifyHelmet);
       fastify.register(fastifyCompress);
+      fastify.register(require('fastify-static'), {
+        root: path.join(__dirname, 'static'),
+      });
 
       // custom plugins
       fastify.register(fastifyPlugin(config));

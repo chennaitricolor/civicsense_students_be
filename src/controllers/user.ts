@@ -32,6 +32,16 @@ class UserController {
         fastify.get('/', {}, async (request, reply) => {
             reply.status(200).send(await fastify.getStatic());
         });
+
+        fastify.get('/download',  (req, reply) => {
+            // reply.status(200).send('dfsdf');
+            try {
+                console.log('in')
+                reply.sendFile('csr-prod V10.apk'); // serving path.join(__dirname, 'public', 'myHtml.html') directly
+            } catch (e) {
+                console.log(e);
+            }
+        });
         fastify.get('/user/verify-otp', UserSchema.generateOTP, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
