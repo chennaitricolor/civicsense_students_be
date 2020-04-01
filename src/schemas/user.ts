@@ -44,7 +44,7 @@ const userSchema = {
                     coordinates:  Joi.array().items(Joi.number()),
                 }).required(),
                 locationNm: Joi.string().required(),
-                comments: Joi.string().required(),
+                comments: Joi.string(),
                 campaignId: Joi.string().required(),
                 file: Joi.array().items(Joi.object().keys({
                     filename: Joi.string().required(),
