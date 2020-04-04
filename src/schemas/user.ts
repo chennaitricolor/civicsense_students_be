@@ -121,9 +121,7 @@ const userSchema = {
                     dateOfBirth: Joi.date().format('DD-MM-YYYY').raw(),
                     email: Joi.string().lowercase().email(),
                     gender: Joi.string().valid('male', 'female', 'other'),
-                    avatar: Joi.number().min(1).max(8).default(1),
-                    otp: Joi.number().max(9999).required(),
-                    phoneNumber: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true}),
+                    avatar: Joi.number().min(1).max(8).default(1)
                 }).min(1).required(),
             }).required()
         },
