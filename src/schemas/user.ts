@@ -45,6 +45,7 @@ const userSchema = {
                 }).required(),
                 locationNm: Joi.string().required(),
                 comments: Joi.string(),
+                formData: Joi.object(),
                 campaignId: Joi.string().required(),
                 file: Joi.array().items(Joi.object().keys({
                     filename: Joi.string().required(),

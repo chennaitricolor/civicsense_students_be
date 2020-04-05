@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 import admin from './admin';
 
+const SubFormSchema = mongoose.Schema({
+    label: { type: String, required: true},
+    isRequired: { type: Boolean, required: true},
+    type: { type: String, required: true},
+    data: [{ type: String, required: true}]
+}, { _id : false });
+
 const AdminCampaignSchema = new mongoose.Schema({
     campaignName: { type: String, required: true },
     description:  { type: String, required: true},
@@ -12,6 +19,8 @@ const AdminCampaignSchema = new mongoose.Schema({
     noOfEntries: {type: Number, default: 0},
     createdBy: { type: Number, ref: admin},
     delete: {type: Boolean},
+    needForm: {type: Boolean},
+    formFields: [SubFormSchema]
 }, {
     timestamps: true
 });

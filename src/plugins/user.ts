@@ -246,7 +246,7 @@ const userPlugin =  async (fastify, opts, next) => {
 
     const getUserTask = async (taskId) => {
         try {
-            return await AdminCampaign.findById(taskId, 'startDate endDate campaignName description rewards rules');
+            return await AdminCampaign.findById(taskId, 'startDate endDate campaignName description rewards rules needForm formFields');
         } catch (e) {
             throw e;
         }

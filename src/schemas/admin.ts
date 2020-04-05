@@ -14,6 +14,16 @@ const adminSchema = {
                 startDate: Joi.date().format('DD-MM-YYYY').raw().required(),
                 endDate: Joi.date().format('DD-MM-YYYY').raw().required(),
                 locationIds: Joi.array().items(Joi.objectId()).min(1).required(),
+                needForm: Joi.boolean().default(false),
+            }).when(Joi.object({ needForm: true}).unknown(), {
+                then: Joi.object({
+                    formFields: Joi.array().items(Joi.object().keys({
+                        label: Joi.string().required(),
+                        isRequired: Joi.boolean().default(false),
+                        type: Joi.string().required(),
+                        data: Joi.array().items(Joi.string())
+                    }))
+                })
             }).required()
         },
         schemaCompiler: (schema) => (data) => {

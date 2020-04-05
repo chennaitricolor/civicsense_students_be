@@ -12,7 +12,8 @@ const UserTaskSchema = new mongoose.Schema({
     validatedBy: {type: Number, ref:  Admin},
     comments: {type: String},
     photoId: {type: String, required: true},
-    rewards: {type: Number}
+    rewards: {type: Number},
+    formData: {type: Object},
 }, {
     timestamps: true
 });
