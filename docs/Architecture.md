@@ -59,6 +59,6 @@ Admin login also uses a cookie based authorization, but the admin APIs are acces
 
 ## Technical View
 
-The actual Technical view of the application based is shown below
+The actual Technical view of the application based on the Logical View is shown below
 
 ![Technical View](TechnicalView.png)
