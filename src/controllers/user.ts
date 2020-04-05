@@ -257,8 +257,16 @@ class UserController {
                         });
                 }
                 if (request.body.formData) {
-                    const formDataKeys = Object.keys(request.body.formData);
-                    if (!_.isEqual(formDataKeys.sort(), userTaskDetails.formFields.map((field) => field.label))) {
+                    const formDataCopy = JSON.parse(JSON.stringify(request.body.formData));
+                    const campaignOptionalFormFields = userTaskDetails.formFields.filter((fields) => !fields.isRequired);
+                    campaignOptionalFormFields.forEach(({label}) => {
+                        if (!formDataCopy[label]) {
+                            formDataCopy[label] = '';
+                        }
+                    });
+
+                    const formDataKeys = Object.keys(formDataCopy);
+                    if (!_.isEqual(formDataKeys.sort(), userTaskDetails.formFields.map((field) => field.label).sort())) {
                         return reply.code(400).send({
                             message: 'Check keys in formData'
                         });
