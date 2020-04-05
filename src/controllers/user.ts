@@ -246,15 +246,12 @@ class UserController {
         });
         fastify.post('/user/task', UserSchema.addTask, async (request, reply) => {
             const file = request.body.file[0];
-            if (request.validationError || !file.data) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
+            const userTaskRequestValidation = async () => {
                 const userTaskDetails = await fastify.getUserTask(request.body.campaignId);
                 if (XOR(userTaskDetails.needForm, request.body.formData)) {
-                        return reply.code(400).send({
-                            message: 'Check for needForm'
-                        });
+                    return reply.code(400).send({
+                        message: 'Check for needForm'
+                    });
                 }
                 if (request.body.formData) {
                     const formDataCopy = JSON.parse(JSON.stringify(request.body.formData));
@@ -272,6 +269,13 @@ class UserController {
                         });
                     }
                 }
+            };
+
+            if (request.validationError || !file.data) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                await userTaskRequestValidation();
                 request.body.location.type = 'Point' ;
                 request.body.locationNm = await fastify.getZoneFromLocation(request.body.location.coordinates, 'Point', false);
                 // const duplicateRecords = await fastify.findDuplicateLocationData(request.body);
