@@ -72,6 +72,14 @@ class AdminController {
                 return reply.code(400).send(request.validationError);
             }
             try {
+                if (request.body.formFields) {
+                    const labelArray = request.body.formFields.map((field) => field.label);
+                    if (labelArray.length !== new Set(labelArray).size) {
+                        return reply.code(400).send({
+                            message: 'Duplicate labels in form fields'
+                        });
+                    }
+                }
                 request.body.createdBy = request.session.user.userId;
                 await fastify.insertCampaign(request.body);
                 const userData = await fastify.findLocationBasedUserData(request.body.locationIds);
