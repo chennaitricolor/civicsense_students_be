@@ -408,6 +408,21 @@ class UserController {
 
             }
         });
+        fastify.get('/hotspots', {}, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                return reply.send(await fastify.awsPlugin.downloadFile(fastify.config.s3.kmlId, true));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error: error .message,
+                    message: 'error error.message ? error.message : happened'
+                });
+
+            }
+        });
     };
 }
 

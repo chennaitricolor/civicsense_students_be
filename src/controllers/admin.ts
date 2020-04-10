@@ -7,6 +7,24 @@ import UserSchema from '../schemas/user';
 
 class AdminController {
     public setPostLoginAdminRoutes = async (fastify) => {
+        fastify.post('/admin/add', AdminSchema.add, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                await fastify.insertUser(request.body, true);
+                return reply.status(200).send();
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+        });
+
         fastify.get('/campaigns', AdminSchema.getCampaigns, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
@@ -226,23 +244,6 @@ class AdminController {
 
     };
     public setPreLoginAdminRoutes = async (fastify) => {
-        fastify.post('/admin/add', AdminSchema.add, async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                await fastify.insertUser(request.body, true);
-                return reply.status(200).send();
-            } catch (error) {
-                reply.status(500);
-                return reply.send({
-                    error ,
-                    message: error.message ? error.message : 'error happened'
-
-                });
-
-            }
-        });
         fastify.post('/admin/login', UserSchema.login, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);

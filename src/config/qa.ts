@@ -16,7 +16,8 @@ const qa = {
     },
     s3: {
         taskBucketName : process.env.TASK_BUCKET_NAME,
-        assetBucketName : process.env.ASSET_BUCKET_NAME
+        assetBucketName : process.env.ASSET_BUCKET_NAME,
+        kmlId: process.env.KMLID
     },
     aws: {
         accessKey :  process.env.ACCESS_KEY,
