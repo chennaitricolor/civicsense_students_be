@@ -20,6 +20,7 @@ services:
       OTP_URL: ${OTP_URL}
       OTP_AUTHKEY: ${OTP_AUTHKEY}
       OTP_TEMPLATE_ID: ${OTP_TEMPLATE_ID}
+      KMLID: ${KMLID}
     ports:
       - "3010:3010"
     networks:
