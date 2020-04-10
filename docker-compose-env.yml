@@ -5,7 +5,7 @@ networks:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}
- 
+
 services:
   redis:
     image: redis
@@ -19,6 +19,7 @@ services:
       NODE_ENV: ${GO_STAGE_NAME}
       TASK_BUCKET_NAME: ${TASK_BUCKET_NAME}
       ASSET_BUCKET_NAME: ${ASSET_BUCKET_NAME}
+      KMLID: ${KMLID}
       ACCESS_KEY: ${ACCESS_KEY}
       SECRETACCESSKEY: ${SECRETACCESSKEY}
       APPLICATION_ARN: ${APPLICATION_ARN}
@@ -41,7 +42,7 @@ services:
       restart_policy:
         condition: ${SERVICE_RESTART_CONDITION}
         delay: 10s
-      labels: 
+      labels:
         - traefik.frontend.rule=${TRAEFIK_FRONTEND_HOST}
         - traefik.enable=true
         - traefik.port=${TRAEFIK_PORT}
@@ -50,4 +51,4 @@ services:
         #- traefik.redirectorservice.frontend.entryPoints=http
         #- traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
-        #- traefik.webservice.frontend.entryPoints=https   
+        #- traefik.webservice.frontend.entryPoints=https
