@@ -21,6 +21,7 @@ services:
       OTP_AUTHKEY: ${OTP_AUTHKEY}
       OTP_TEMPLATE_ID: ${OTP_TEMPLATE_ID}
       KMLID: ${KMLID}
+      PHONE_NO: ${PHONE_NO}
     ports:
       - "3010:3010"
     networks:

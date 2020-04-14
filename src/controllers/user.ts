@@ -142,6 +142,16 @@ class UserController {
                 return reply.send({
                     success: true
                 });
+            } else if (request.body.userId === process.env.PHONE_NO) {
+                request.body.lastUsedDateTime = Date.now();
+                await fastify.insertUser(request.body, false);
+                request.session.user = {
+                    userId: request.body.userId
+                };
+                // save sessionId in redis
+                return reply.send({
+                    success: true
+                });
             }
             return reply.status(401).send({
                 success: false
