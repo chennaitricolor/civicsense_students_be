@@ -16,6 +16,8 @@ vault:
   name: civicsense_students_be   
   dev:
     - SECRET
+    - REGION
+    - APPLICATION_ARN
     - COOKIE_NAME
     - REDIS_HOST
     - OTP_URL
@@ -30,6 +32,8 @@ vault:
     - PHONE_NO
   prod:
     - SECRET
+    - REGION
+    - APPLICATION_ARN
     - COOKIE_NAME
     - REDIS_HOST
     - OTP_URL
