@@ -293,6 +293,7 @@ class UserController {
                             message: 'Check keys in formData'
                         });
                     }
+                    request.body.formData.isPositiveCampaign = userTaskDetails.campaignId === fastify.config.static.campaignId;
                 }
             };
 

@@ -18,6 +18,7 @@ vault:
     - SECRET
     - REGION
     - APPLICATION_ARN
+    - POSITIVE_TRACKER_CAMP_ID
     - COOKIE_NAME
     - REDIS_HOST
     - OTP_URL
@@ -34,6 +35,7 @@ vault:
     - SECRET
     - REGION
     - APPLICATION_ARN
+    - POSITIVE_TRACKER_CAMP_ID
     - COOKIE_NAME
     - REDIS_HOST
     - OTP_URL

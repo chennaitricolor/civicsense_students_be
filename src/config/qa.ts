@@ -26,6 +26,9 @@ const qa = {
     sns: {
         applicationArn: process.env.APPLICATION_ARN,
         region: process.env.REGION
+    },
+    static: {
+        campaignId: process.env.POSITIVE_TRACKER_CAMP_ID
     }
 };
 export default qa;

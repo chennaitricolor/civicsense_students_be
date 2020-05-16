@@ -89,7 +89,7 @@ const adminSchema = {
             queryString: Joi.object().keys({
                 lastRecordCreatedAt: Joi.date(),
                 userId: Joi.string(),
-                status: Joi.string().valid('ACCEPTED', 'REJECTED', 'SUBMITTED'),
+                status: Joi.string().valid('ACCEPTED', 'REJECTED', 'SUBMITTED', 'OPEN'),
                 locationNm: Joi.string(),
                 campaignId: Joi.objectId(),
                 live: Joi.boolean().default(false)

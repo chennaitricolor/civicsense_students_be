@@ -1,8 +1,10 @@
+import { validations } from 'src/util/validators';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';
 import User from '../models/user';
 import UserTask from '../models/user-task';
+import { validator } from './../util/helper';
 
 enum OTP_TYPES_ENUM {
     SEND_OTP,
@@ -80,10 +82,21 @@ const userPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const insertUserTask = async (userId, data) => {
+    const insertUserTask = async (userId, formData) => {
         try {
+            const getIndicator = (dataVal) => {
+                const indicatorCalculator = (validationResult: { [s: string]: boolean; }) => Object.values(validationResult).reduce((a, b) => a && b);
+                return !validator(dataVal, validations.isPositiveCaseValidators, indicatorCalculator).result;
+            };
+            const { isPositiveCampaign, ...data} = formData;
             data.userId = userId;
-            data.status = 'SUBMITTED';
+            if (isPositiveCampaign) {
+                const indicator = getIndicator(data.formData);
+                data.formData.indicator = indicator ? 'RED' : 'GREEN';
+                data.status = indicator ? 'OPEN' : 'CLOSED';
+            } else {
+                data.status = 'SUBMITTED';
+            }
             return await UserTask(data).save();
         } catch (e) {
             throw e;

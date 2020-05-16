@@ -8,7 +8,7 @@ const UserTaskSchema = new mongoose.Schema({
     location: mongoose.Schema.Types.Point,
     locationNm: {type: String, required: true},
     campaignId: {type: mongoose.Types.ObjectId, ref: AdminCampaign  },
-    status: {type: String, required: true, enum: ['ACCEPTED', 'REJECTED', 'SUBMITTED']},
+    status: {type: String, required: true, enum: ['ACCEPTED', 'REJECTED', 'SUBMITTED', 'OPEN', 'CLOSE']},
     validatedBy: {type: Number, ref:  Admin},
     comments: {type: String},
     photoId: {type: String, required: true},
