@@ -15,24 +15,6 @@ services:
   civicsense_students_be:
     image: ${REGISTRY}/${IMAGETAG}:${GO_REVISION}
     env_file: env_vars/${GO_STAGE_NAME}.env
-    environment:
-      NODE_ENV: ${GO_STAGE_NAME}
-      TASK_BUCKET_NAME: ${TASK_BUCKET_NAME}
-      ASSET_BUCKET_NAME: ${ASSET_BUCKET_NAME}
-      KMLID: ${KMLID}
-      PHONE_NO: ${PHONE_NO}
-      ACCESS_KEY: ${ACCESS_KEY}
-      SECRETACCESSKEY: ${SECRETACCESSKEY}
-      APPLICATION_ARN: ${APPLICATION_ARN}
-      POSITIVE_TRACKER_CAMP_ID: ${POSITIVE_TRACKER_CAMP_ID}
-      REGION: ${REGION}
-      COOKIE_NAME: ${COOKIE_NAME}
-      SECRET: ${SECRET}
-      MONGO_CONNECTION: ${MONGO_CONNECTION}
-      REDIS_HOST: ${REDIS_HOST}
-      OTP_URL: ${OTP_URL}
-      OTP_AUTHKEY: ${OTP_AUTHKEY}
-      OTP_TEMPLATE_ID: ${OTP_TEMPLATE_ID}
     networks:
       - traefik
       - default
