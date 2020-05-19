@@ -49,7 +49,6 @@ const adminPlugin =  async (fastify, opts, next) => {
 
     const getReportDetails = async (filterObject) => {
         try {
-            let limit = 10;
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {};
             if (filterObject.status) {
@@ -76,34 +75,75 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $ne: ['$campaign.delete', true]
                 }]
             } : true ;
-            const aggregatePipeline: any = [
-                { $match: filterQuery },
-                { $lookup: {
-                        from: 'admin.campaigns',
-                        localField: 'campaignId',
-                        foreignField: '_id',
-                        as: 'campaign'
-                    }},
-                { $unwind: '$campaign' },
-                { $redact: {
-                        $cond : {
-                            if: redactIf,
-                            then: '$$KEEP',
-                            else: '$$PRUNE'
-                        }
-                    }
-                },
-                { $sort : { createdAt : 1 } }
-            ];
-            const applyLimit =  filterObject.applyLimit ? filterObject.applyLimit === 'true' : false;
-            if (applyLimit) {
-                limit = parseInt(filterObject.limit, 10) || limit;
-                aggregatePipeline.splice(-1, 0, { $limit: limit });
-            }
-            return await UserTask.aggregate(aggregatePipeline);
+            return await getReport(filterQuery, redactIf, filterObject.limit);
         } catch (e) {
             throw e;
         }
+    };
+
+    const getPositiveReportDetails = async (filterObject) => {
+        try {
+            filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
+            const filterQuery: any = {};
+            filterQuery.campaignId = mongoose.Types.ObjectId(filterObject.campaignId ? filterObject.campaignId : fastify.config.static.campaignId);
+            if (filterObject.status) {
+                filterQuery.status = filterObject.status;
+            }
+            if (filterObject.locationNm) {
+                filterQuery.locationNm = filterObject.locationNm;
+            }
+            if (filterObject.userId) {
+                filterQuery.userId = filterObject.userId;
+            }
+            if (filterObject.lastRecordCreatedAt) {
+                filterQuery.createdAt = {
+                    $gt: new Date(filterObject.lastRecordCreatedAt)
+                };
+            }
+            if (filterObject.endDate) {
+                filterQuery.createdAt ? filterQuery.createdAt.$lte = new Date(filterObject.endDate) :
+                filterQuery.createdAt = {
+                    $lte: new Date(filterObject.endDate)
+                };
+            }
+            const redactIf = filterObject.live ? {
+                $and: [{
+                    $gte: ['$campaign.endDate', new Date()]
+                }, {
+                    $ne: ['$campaign.delete', true]
+                }]
+            } : true ;
+            return await getReport(filterQuery, redactIf, filterObject.limit);
+        } catch (e) {
+            throw e;
+        }
+    };
+
+    const getReport = async (filterQuery, redactIf, limit) => {
+        const aggregatePipeline: any = [
+            { $match: filterQuery },
+            { $lookup: {
+                    from: 'admin.campaigns',
+                    localField: 'campaignId',
+                    foreignField: '_id',
+                    as: 'campaign'
+                }},
+            { $unwind: '$campaign' },
+            { $redact: {
+                    $cond : {
+                        if: redactIf,
+                        then: '$$KEEP',
+                        else: '$$PRUNE'
+                    }
+                }
+            },
+            { $sort : { createdAt : 1 } }
+        ];
+        if (limit) {
+            limit = parseInt(limit, 10) || limit;
+            aggregatePipeline.splice(-1, 0, { $limit: limit });
+        }
+        return await UserTask.aggregate(aggregatePipeline);
     };
     const getLiveCampaigns = async (live) => {
         live =  live ? live === 'true' : false;
@@ -228,6 +268,7 @@ const adminPlugin =  async (fastify, opts, next) => {
     fastify.decorate('addRewards', addRewards);
     fastify.decorate('editRewards', editRewards);
     fastify.decorate('getReportDetails', getReportDetails);
+    fastify.decorate('getReportDetails', getPositiveReportDetails);
     fastify.decorate('updateCampaign', updateCampaign);
     fastify.decorate('deleteCampaign', deleteCampaign);
     next();

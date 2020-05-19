@@ -29,6 +29,7 @@ declare module 'fastify' {
         getLeaderboard: (userId: number, rewards: string) => Promise<object>;
         getLiveCampaigns: (live: boolean) => Promise<object>;
         getLocation: () => Promise<object>;
+        getPositiveReportDetails: (filterObject: object) => Promise<object>;
         getReportDetails: (filterObject: object) => Promise<object>;
         getRewards: () => Promise<object>;
         getStatic: () => Promise<object>;

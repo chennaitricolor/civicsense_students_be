@@ -5,7 +5,7 @@ class RangeValidator {
         this.matchers = rangeEx.exec(range);
     }
 
-    public validate(value: number) :boolean {
+    public validate(value: number): boolean {
         const matchers = this.matchers;
         if (matchers) {
             const lowNumber = parseInt(matchers[2], 10);
@@ -19,9 +19,9 @@ class RangeValidator {
 }
 export const validations = {
     isPositiveCaseValidators: {
-        'Oxygen Level' : (ol: number) :boolean => new RangeValidator('[94, 98]').validate(ol),
-        'Pulse' : (pulse: number) :boolean=> new RangeValidator('[72, 80]').validate(pulse),
-        'Temperature' : (temperature: number) :boolean => new RangeValidator('[98, 99]').validate(temperature),
-        'Respiratory Rate' : (respiratorRate: number) :boolean => new RangeValidator('[16, 20]').validate(respiratorRate),
+        'Oxygen Level' : (ol: number): boolean => new RangeValidator('[94, 98]').validate(ol),
+        'Pulse' : (pulse: number): boolean => new RangeValidator('[72, 80]').validate(pulse),
+        'Temperature' : (temperature: number): boolean => new RangeValidator('[98, 99]').validate(temperature),
+        'Respiratory Rate' : (respiratorRate: number): boolean => new RangeValidator('[16, 20]').validate(respiratorRate),
     }
 };

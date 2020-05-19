@@ -58,6 +58,21 @@ class AdminController {
 
             }
         });
+        fastify.get('/positive-reports', AdminSchema.getPositiveReports, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                return reply.status(200).send(await fastify.getPositiveReportDetails(request.query));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error ,
+                    message: error.message ? error.message : 'error happened'
+                });
+
+            }
+        });
         fastify.put('/campaigns/:campaignId', AdminSchema.addCampaigns, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);

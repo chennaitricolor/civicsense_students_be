@@ -92,8 +92,35 @@ const adminSchema = {
                 status: Joi.string().valid('ACCEPTED', 'REJECTED', 'SUBMITTED', 'OPEN'),
                 locationNm: Joi.string(),
                 campaignId: Joi.objectId(),
-                live: Joi.boolean().default(false)
-            }).optional()
+                live: Joi.boolean().default(false),
+                applyLimit: Joi.boolean().default(false),
+            }).when(Joi.object({ applyLimit: 'true' }).unknown(), {
+                then: Joi.object({
+                  limit: Joi.number().required().default(10),
+                })
+              }).optional()
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
+    getPositiveReports: {
+        schema: {
+            queryString: Joi.object().keys({
+                lastRecordCreatedAt: Joi.date(),
+                endDate: Joi.date(),
+                userId: Joi.string(),
+                status: Joi.string().valid('CLOSED', 'OPEN'),
+                locationNm: Joi.string(),
+                campaignId: Joi.objectId(),
+                live: Joi.boolean().default(false),
+                applyLimit: Joi.boolean().default(false),
+            }).when(Joi.object({ applyLimit: 'true' }).unknown(), {
+                then: Joi.object({
+                  limit: Joi.number().required().default(10),
+                })
+              }).optional()
         },
         schemaCompiler: (schema) => (data) => {
             return Joi.validate(data, schema);
