@@ -88,7 +88,8 @@ const userPlugin =  async (fastify, opts, next) => {
                 const indicatorCalculator = (validationResult: { [s: string]: boolean; }) => Object.values(validationResult).reduce((a, b) => a && b);
                 return !validator(dataVal, validations.isPositiveCaseValidators, indicatorCalculator).result;
             };
-            const { isPositiveCampaign, ...data} = formData;
+            const { ...data} = formData;
+            const isPositiveCampaign = formData &&  formData.formData && formData.formData.isPositiveCampaign;
             data.userId = userId;
             if (isPositiveCampaign) {
                 const indicator = getIndicator(data.formData);
