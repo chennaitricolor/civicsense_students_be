@@ -1,9 +1,9 @@
-import { validations } from 'src/util/validators';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';
 import User from '../models/user';
 import UserTask from '../models/user-task';
+import { validations } from '../util/validators';
 import { validator } from './../util/helper';
 
 enum OTP_TYPES_ENUM {

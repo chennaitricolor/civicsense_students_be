@@ -268,7 +268,7 @@ const adminPlugin =  async (fastify, opts, next) => {
     fastify.decorate('addRewards', addRewards);
     fastify.decorate('editRewards', editRewards);
     fastify.decorate('getReportDetails', getReportDetails);
-    fastify.decorate('getReportDetails', getPositiveReportDetails);
+    fastify.decorate('getPositiveReportDetails', getPositiveReportDetails);
     fastify.decorate('updateCampaign', updateCampaign);
     fastify.decorate('deleteCampaign', deleteCampaign);
     next();
