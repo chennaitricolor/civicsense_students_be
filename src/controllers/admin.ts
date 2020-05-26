@@ -48,6 +48,7 @@ class AdminController {
                 return reply.code(400).send(request.validationError);
             }
             try {
+                request.query.status = request.query.status && request.query.status.length && request.query.status.split(',');
                 return reply.status(200).send(await fastify.getReportDetails(request.query));
             } catch (error) {
                 reply.status(500);

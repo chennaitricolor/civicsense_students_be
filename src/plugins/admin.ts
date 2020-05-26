@@ -52,7 +52,7 @@ const adminPlugin =  async (fastify, opts, next) => {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {};
             if (filterObject.status) {
-                filterQuery.status = filterObject.status;
+                filterQuery.status = {$in: filterObject.status};
             }
             if (filterObject.locationNm) {
                 filterQuery.locationNm = filterObject.locationNm;
@@ -198,7 +198,6 @@ const adminPlugin =  async (fastify, opts, next) => {
                 }
             } : {};
             const status = fastify.config.static.campaignId === campaignId ? 'OPEN' : 'SUBMITTED';
-            console.log(status);
             return {
                 campaignDetails: await AdminCampaign.findById(campaignId, '-createdAt -locationIds -updatedAt'),
                 entries: await UserTask.find({
