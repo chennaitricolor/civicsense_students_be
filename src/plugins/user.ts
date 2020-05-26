@@ -185,7 +185,7 @@ const userPlugin =  async (fastify, opts, next) => {
     };
     const updateLocation = async (userId, data) => {
         try {
-            data.currentLocation = await fastify.getZoneFromLocation(data.currentLocation.coordinates, 'Point');
+            data.currentLocation = (await fastify.getZoneFromLocation(data.currentLocation.coordinates, 'Point')).id;
             if (data.inUse) {
                 await User.findByIdAndUpdate(userId, data);
                 return data.currentLocation;
@@ -232,14 +232,15 @@ const userPlugin =  async (fastify, opts, next) => {
     };
     const getUserTasks = async (userId, coordinates) => {
         try {
-            let currentLocation;
+            const zoneArrayVal: any[] = [];
             if (!coordinates) {
-                currentLocation = (await User.findById(userId, 'currentLocation')).currentLocation;
+                zoneArrayVal.push((await User.findById(userId, 'currentLocation')).currentLocation);
             } else {
-                currentLocation = await fastify.getZoneFromLocation(coordinates, 'Point');
-                await User.findByIdAndUpdate(userId, {
+               const { currentLocation, zoneArray } = await fastify.getZoneFromLocation(coordinates, 'Point');
+               await User.findByIdAndUpdate(userId, {
                     currentLocation
                 });
+               zoneArrayVal.push(...zoneArray.map((a) => a._id));
             }
             return await AdminCampaign.find({
                 endDate: {
@@ -251,7 +252,9 @@ const userPlugin =  async (fastify, opts, next) => {
                 delete: {
                     $ne: true
                 },
-                locationIds: currentLocation
+                locationIds: {
+                    $in: zoneArrayVal
+                }
             }, 'startDate endDate campaignName rules description rewards');
         } catch (e) {
             throw e;

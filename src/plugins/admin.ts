@@ -201,7 +201,7 @@ const adminPlugin =  async (fastify, opts, next) => {
                 campaignDetails: await AdminCampaign.findById(campaignId, '-createdAt -locationIds -updatedAt'),
                 entries: await UserTask.find({
                     campaignId,
-                    status: 'SUBMITTED',
+                    status: 'SUBMITTED' || 'OPEN',
                     ...findFilterForpagination
                 }, 'locationNm photoId createdAt').limit(10).sort('createdAt')
             };

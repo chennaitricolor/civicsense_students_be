@@ -31,9 +31,15 @@ const LocationPlugin = async (fastify, opts, next) => {
             });
             if (zoneArray[0]) {
                 if (zoneid) {
-                    return zoneArray[0]._id;
+                    return {
+                        id: zoneArray[0]._id,
+                        zoneArray
+                    };
                 } else {
-                    return zoneArray[0].locationNm;
+                    return {
+                        id: zoneArray[0].locationNm,
+                        zoneArray
+                    };
                 }
 
             } else {

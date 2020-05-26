@@ -122,7 +122,7 @@ class UserController {
             await this.loginHandler(fastify, request, reply);
         });
         fastify.post('/user/signup', UserSchema.signup, async (request, reply) => {
-            request.body.currentLocation = await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point');
+            request.body.currentLocation = (await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point')).id;
             request.body.defaultLocation = request.body.currentLocation;
             await this.loginHandler(fastify, request, reply);
         });
@@ -303,13 +303,14 @@ class UserController {
             try {
                 await userTaskRequestValidation();
                 request.body.location.type = 'Point' ;
-                request.body.locationNm = await fastify.getZoneFromLocation(request.body.location.coordinates, 'Point', false);
+                request.body.locationNm = (await fastify.getZoneFromLocation(request.body.location.coordinates, 'Point', false)).id;
+                console.log(request.body.locationNm);
                 // const duplicateRecords = await fastify.findDuplicateLocationData(request.body);
                 // if (Array.isArray(duplicateRecords) && duplicateRecords.length) {
                 //     return reply.status(200).send({message: 'duplicate location', success: false});
                 // }
                 const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
-                await fastify.awsPlugin.uploadFile(file, fileKey, false);
+                // await fastify.awsPlugin.uploadFile(file, fileKey, false);
                 request.body.photoId = fileKey;
                 await fastify.insertUserTask(request.session.user.userId, request.body);
                 await fastify.updateEntries(request.body.campaignId, true);
