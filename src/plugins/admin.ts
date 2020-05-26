@@ -197,11 +197,13 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $gt: new Date(lastRecordCreatedAt)
                 }
             } : {};
+            const status = fastify.config.static.campaignId === campaignId ? 'OPEN' : 'SUBMITTED';
+            console.log(status);
             return {
                 campaignDetails: await AdminCampaign.findById(campaignId, '-createdAt -locationIds -updatedAt'),
                 entries: await UserTask.find({
                     campaignId,
-                    status: 'SUBMITTED' || 'OPEN',
+                    status,
                     ...findFilterForpagination
                 }, 'locationNm photoId createdAt').limit(10).sort('createdAt')
             };
