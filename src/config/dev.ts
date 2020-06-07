@@ -17,7 +17,8 @@ const dev =  {
     s3: {
         taskBucketName : process.env.TASK_BUCKET_NAME,
         assetBucketName : process.env.ASSET_BUCKET_NAME,
-        kmlId: process.env.KMLID
+        kmlId: process.env.KMLID,
+        healthkmlId: process.env.HEALTH_KMLID
     },
     aws: {
         accessKey :  process.env.ACCESS_KEY,
