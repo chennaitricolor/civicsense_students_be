@@ -2,7 +2,7 @@ stackname: covidgeneric
 env_folder: env_vars
 replicas:
   dev: 1
-  qa: 1 
+  qa: 1
   uat: 1
   prod: 3
 restart_policy: any
@@ -13,7 +13,7 @@ traefik_https_enable: true
 traefik_ssl_provider: letsencrypt
 vault:
   enabled: true
-  name: civicsense_students_be   
+  name: civicsense_students_be
   dev:
     - SECRET
     - REGION
@@ -32,6 +32,10 @@ vault:
     - KMLID
     - PHONE_NO
     - NODE_ENV
+    - HEALTH_KMLID
+    - TEST_KMLID
+
+
   prod:
     - SECRET
     - REGION
@@ -50,3 +54,5 @@ vault:
     - KMLID
     - PHONE_NO
     - NODE_ENV
+    - HEALTH_KMLID
+    - TEST_KMLID

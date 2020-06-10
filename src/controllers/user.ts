@@ -51,6 +51,21 @@ class UserController {
 
             }
         });
+        fastify.get('/testingCenters', {}, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                return reply.send(await fastify.awsPlugin.downloadFile(fastify.config.s3.testkmlId, true));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error: error .message,
+                    message: 'error error.message ? error.message : happened'
+                });
+
+            }
+        });
         fastify.get('/user/generate-otp', UserSchema.generateOTP, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);

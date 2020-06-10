@@ -18,7 +18,8 @@ const prod =  {
         taskBucketName : process.env.TASK_BUCKET_NAME,
         assetBucketName : process.env.ASSET_BUCKET_NAME,
         kmlId: process.env.KMLID,
-        healthkmlId: process.env.HEALTH_KMLID
+        healthkmlId: process.env.HEALTH_KMLID,
+        testkmlId: process.env.TEST_KMLID
     },
     aws: {
         accessKey :  process.env.ACCESS_KEY,
