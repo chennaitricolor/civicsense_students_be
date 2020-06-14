@@ -340,7 +340,7 @@ class UserController {
                 //     return reply.status(200).send({message: 'duplicate location', success: false});
                 // }
                 const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
-                // await fastify.awsPlugin.uploadFile(file, fileKey, false);
+                await fastify.awsPlugin.uploadFile(file, fileKey, false);
                 request.body.photoId = fileKey;
                 await fastify.insertUserTask(request.session.user.userId, request.body);
                 await fastify.updateEntries(request.body.campaignId, true);
