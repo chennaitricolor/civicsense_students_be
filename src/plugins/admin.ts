@@ -143,7 +143,7 @@ const adminPlugin =  async (fastify, opts, next) => {
             limit = parseInt(limit, 10) || limit;
             aggregatePipeline.splice(-1, 0, { $limit: limit });
         }
-        return await UserTask.aggregate(aggregatePipeline);
+        return await UserTask.aggregate(aggregatePipeline).allowDiskUse(true);
     };
     const getLiveCampaigns = async (live) => {
         live =  live ? live === 'true' : false;
