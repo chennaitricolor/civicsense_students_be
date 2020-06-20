@@ -25,6 +25,7 @@ services:
       PHONE_NO: ${PHONE_NO}
       HEALTH_KMLID: ${HEALTH_KMLID}
       TEST_KMLID: ${TEST_KMLID}
+      COVID_TRACKER: ${COVID_TRACKER}
     ports:
       - "3010:3010"
     networks:

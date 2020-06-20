@@ -1,10 +1,10 @@
 'use strict';
 import mongoose from 'mongoose';
+import stream from 'stream';
 import uuid from 'uuid/v4';
 import AdminSchema from '../schemas/admin';
 import LocationSchema from '../schemas/location';
 import UserSchema from '../schemas/user';
-import stream from 'stream';
 
 class AdminController {
     public setPostLoginAdminRoutes = async (fastify) => {
@@ -82,9 +82,9 @@ class AdminController {
             try {
                 request.query.status = request.query.status && request.query.status.length && request.query.status.split(',');
                 if (request.query.download) {
-                    var pass = new stream.PassThrough();
+                    const pass = new stream.PassThrough();
                     fastify.getReportDetailsV2(request.query, pass);
-                    return reply.send(pass)
+                    return reply.send(pass);
                 } else {
                     return reply.status(200).send(await fastify.getReportDetails(request.query));
                 }

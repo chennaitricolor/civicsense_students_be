@@ -1,6 +1,7 @@
 
 const dev =  {
     port: process.env.PORT,
+    covidTracker: process.env.COVID_TRACKER,
     db: {
         connectionString: process.env.MONGO_CONNECTION
     },

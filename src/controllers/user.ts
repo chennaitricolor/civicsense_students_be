@@ -342,7 +342,7 @@ class UserController {
                 const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
                 await fastify.awsPlugin.uploadFile(file, fileKey, false);
                 request.body.photoId = fileKey;
-                await fastify.insertUserTask(request.session.user.userId, request.body);
+                await fastify.insertUserTask(request.session.user.userId, request.body, fastify.config.covidTracker);
                 await fastify.updateEntries(request.body.campaignId, true);
                 return reply.status(200).send({
                     success: true

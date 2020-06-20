@@ -1,5 +1,5 @@
-import AwsConnector from '../util/awsConnector';
 import stream from 'stream';
+import AwsConnector from '../util/awsConnector';
 
 class AWSPlugin {
 
@@ -54,13 +54,13 @@ class AWSPlugin {
         ));
     }
     public uploadFromStream(Key, isAsset, promise) {
-        var pass = new stream.PassThrough();
+        const pass = new stream.PassThrough();
         const params = {
             Bucket: isAsset ? this.config.s3.assetBucketName : this.config.s3.taskBucketName,
             Key,
             Body: pass
         };
-        AwsConnector.getS3ClientConnection(this.config).upload(params, function (err, data) {
+        AwsConnector.getS3ClientConnection(this.config).upload(params, (err, data) => {
             if (err) {
                 console.log('There was an error uploading your file: ', err);
                 return promise.reject(err);

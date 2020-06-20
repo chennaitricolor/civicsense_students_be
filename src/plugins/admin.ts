@@ -1,11 +1,11 @@
+import csvWriter from 'csv-write-stream';
 import moment from 'moment';
 import mongoose from 'mongoose';
+import stream from 'stream';
 import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';
 import UserTask from '../models/user-task';
-import csvWriter from  'csv-write-stream'; 
-import stream from 'stream';
 
 const adminPlugin =  async (fastify, opts, next) => {
 
@@ -75,7 +75,7 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $lte: new Date(filterObject.endDate)
                 };
             }
-            if(ws) {
+            if (ws) {
                 return await writeReport(filterQuery, ws);
             } else {
                 return await UserTask.find({
@@ -119,7 +119,7 @@ const adminPlugin =  async (fastify, opts, next) => {
         } catch (e) {
             throw e;
         }
-    }; 
+    };
 
     const getPositiveReportDetails = async (filterObject) => {
         try {
@@ -160,10 +160,10 @@ const adminPlugin =  async (fastify, opts, next) => {
     };
     const writeReport = async (filterQuery, writestream) => {
         const writer = csvWriter();
-        const pass = new stream.Transform( {objectMode:true});
+        const pass = new stream.Transform( {objectMode: true});
         writer.pipe(writestream);
-        pass._transform = function ({formData, ...chunk}, enc, cb) {
-            this.push({ Zone: chunk.locationNm, Latitude: chunk.location.coordinates[1], Longitude: chunk.location.coordinates[0], ...formData, "Created At": moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS')});
+        pass._transform = function({formData, ...chunk}, enc, cb) {
+            this.push({ 'Zone': chunk.locationNm, 'Latitude': chunk.location.coordinates[1], 'Longitude': chunk.location.coordinates[0], ...formData, 'Created At': moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS')});
             cb();
         };
         pass.on('error', console.log);

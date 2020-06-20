@@ -40,7 +40,7 @@ declare module 'fastify' {
         insertCampaign: (data: object) => Promise<object>;
         insertLocation: (data: object) => Promise<object>;
         insertUser: (data: object, isAdmin: boolean) => Promise<object>;
-        insertUserTask: (userId: number, data: object) => Promise<object>;
+        insertUserTask: (userId: number, data: object, covidTracker: boolean) => Promise<object>;
         listLocation: (data: string) => Promise<object>;
         login: (data: object) => Promise<object>;
         resendMobileOTP: (mobile: number) => Promise<object>;
