@@ -4,6 +4,8 @@ import Admin from '../models/admin';
 import AdminCampaign from '../models/admin-campaign';
 import Reward from '../models/rewards';
 import UserTask from '../models/user-task';
+import csvWriter from  'csv-write-stream'; 
+import stream from 'stream';
 
 const adminPlugin =  async (fastify, opts, next) => {
 
@@ -47,6 +49,44 @@ const adminPlugin =  async (fastify, opts, next) => {
         }
     };
 
+    const getReportDetailsV2 = async (filterObject, ws) => {
+        try {
+            const filterQuery: any = {};
+            if (filterObject.status) {
+                filterQuery.status = {$in: filterObject.status};
+            }
+            if (filterObject.locationNm) {
+                filterQuery.locationNm = filterObject.locationNm;
+            }
+            if (filterObject.userId) {
+                filterQuery.userId = filterObject.userId;
+            }
+            if (filterObject.campaignId) {
+                filterQuery.campaignId = mongoose.Types.ObjectId(filterObject.campaignId);
+            }
+            if (filterObject.lastRecordCreatedAt) {
+                filterQuery.createdAt = {
+                    $gt: new Date(filterObject.lastRecordCreatedAt)
+                };
+            }
+            if (filterObject.endDate) {
+                filterQuery.createdAt ? filterQuery.createdAt.$lte = new Date(filterObject.endDate) :
+                filterQuery.createdAt = {
+                    $lte: new Date(filterObject.endDate)
+                };
+            }
+            if(ws) {
+                return await writeReport(filterQuery, ws);
+            } else {
+                return await UserTask.find({
+                    ...filterQuery
+                }, 'locationNm photoId createdAt status campaignId userId name location formData').sort('createdAt');
+            }
+        } catch (e) {
+            throw e;
+        }
+    };
+
     const getReportDetails = async (filterObject) => {
         try {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
@@ -79,7 +119,7 @@ const adminPlugin =  async (fastify, opts, next) => {
         } catch (e) {
             throw e;
         }
-    };
+    }; 
 
     const getPositiveReportDetails = async (filterObject) => {
         try {
@@ -117,6 +157,20 @@ const adminPlugin =  async (fastify, opts, next) => {
         } catch (e) {
             throw e;
         }
+    };
+    const writeReport = async (filterQuery, writestream) => {
+        const writer = csvWriter();
+        const pass = new stream.Transform( {objectMode:true});
+        writer.pipe(writestream);
+        pass._transform = function ({formData, ...chunk}, enc, cb) {
+            this.push({ Zone: chunk.locationNm, Latitude: chunk.location.coordinates[1], Longitude: chunk.location.coordinates[0], ...formData, "Created At": moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS')});
+            cb();
+        };
+        pass.on('error', console.log);
+        writer.on('error', console.log);
+        await UserTask.find({
+            ...filterQuery
+        }, '-_id userId photoId locationNm location formData createdAt').sort('createdAt').stream().pipe(pass).pipe(writer);
     };
 
     const getReport = async (filterQuery, redactIf, limit) => {
@@ -269,6 +323,7 @@ const adminPlugin =  async (fastify, opts, next) => {
     fastify.decorate('addRewards', addRewards);
     fastify.decorate('editRewards', editRewards);
     fastify.decorate('getReportDetails', getReportDetails);
+    fastify.decorate('getReportDetailsV2', getReportDetailsV2);
     fastify.decorate('getPositiveReportDetails', getPositiveReportDetails);
     fastify.decorate('updateCampaign', updateCampaign);
     fastify.decorate('deleteCampaign', deleteCampaign);

@@ -77,6 +77,7 @@
     "aws-sdk": "^2.574.0",
     "bad-words": "^3.0.3",
     "cross-fetch": "^3.0.0",
+    "csv-write-stream": "^2.0.0",
     "fast-json-stringify": "^1.11.0",
     "fastify": "^2.10.0",
     "fastify-compress": "^1.0.0",

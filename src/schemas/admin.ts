@@ -94,6 +94,8 @@ const adminSchema = {
                 campaignId: Joi.objectId(),
                 live: Joi.boolean().default(false),
                 applyLimit: Joi.boolean().default(false),
+                download: Joi.boolean().default(false),
+                endDate: Joi.date(),
             }).when(Joi.object({ applyLimit: 'true' }).unknown(), {
                 then: Joi.object({
                   limit: Joi.number().required().default(10),

@@ -4,6 +4,7 @@ import uuid from 'uuid/v4';
 import AdminSchema from '../schemas/admin';
 import LocationSchema from '../schemas/location';
 import UserSchema from '../schemas/user';
+import stream from 'stream';
 
 class AdminController {
     public setPostLoginAdminRoutes = async (fastify) => {
@@ -69,6 +70,28 @@ class AdminController {
                 reply.status(500);
                 return reply.send({
                     error ,
+                    message: error.message ? error.message : 'error happened'
+                });
+
+            }
+        });
+        fastify.get('/v2/reports', AdminSchema.getReports, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                request.query.status = request.query.status && request.query.status.length && request.query.status.split(',');
+                if (request.query.download) {
+                    var pass = new stream.PassThrough();
+                    fastify.getReportDetailsV2(request.query, pass);
+                    return reply.send(pass)
+                } else {
+                    return reply.status(200).send(await fastify.getReportDetails(request.query));
+                }
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
