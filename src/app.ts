@@ -36,8 +36,7 @@ export class FastifyPluginRegister  {
       fastify.register(fastifySession, {
         cookieName: process.env.COOKIE_NAME,
         secret: process.env.SECRET,
-        cookie: { secure: false },
-        expires: 1800000,
+        cookie: { secure: false, maxAge: 90 * 24 * 60 * 60 * 1000},
         store: new RedisStore({
           host: process.env.REDIS_HOST,
           port: 6379,

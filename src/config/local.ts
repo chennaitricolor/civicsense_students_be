@@ -1,6 +1,7 @@
 
 const local =  {
     port: 3010,
+    covidTracker: true,
     db: {
         connectionString: 'mongodb://localhost:27017/csr'
     },

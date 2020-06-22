@@ -34,6 +34,7 @@ vault:
     - NODE_ENV
     - HEALTH_KMLID
     - TEST_KMLID
+    - COVID_TRACKER
 
 
   prod:
@@ -56,3 +57,4 @@ vault:
     - NODE_ENV
     - HEALTH_KMLID
     - TEST_KMLID
+    - COVID_TRACKER
