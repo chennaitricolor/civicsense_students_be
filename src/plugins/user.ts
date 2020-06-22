@@ -82,7 +82,7 @@ const userPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const insertUserTask = async (userId, formData, covidTracker) => {
+    const insertUserTask = async (userId, formData) => {
         try {
             const getIndicator = (dataVal) => {
                 const indicatorCalculator = (validationResult: { [s: string]: boolean; }) => Object.values(validationResult).reduce((a, b) => a && b);
@@ -96,7 +96,7 @@ const userPlugin =  async (fastify, opts, next) => {
                 data.formData.indicator = indicator ? 'RED' : 'GREEN';
                 data.status = indicator ? 'OPEN' : 'CLOSED';
             } else {
-                data.status = covidTracker ? 'ACCEPTED' : 'SUBMITTED';
+                data.status =  'ACCEPTED';
             }
             return await UserTask(data).save();
         } catch (e) {
