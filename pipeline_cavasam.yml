@@ -1,0 +1,57 @@
+stackname: cavasam
+env_folder: env_vars
+replicas:
+  dev: 1
+  qa: 1
+  uat: 1
+  prod: 3
+restart_policy: any
+max_mem: 1024M
+max_cpu: 1
+traefik_application_port: 3010
+traefik_https_enable: true
+traefik_ssl_provider: letsencrypt
+vault:
+  enabled: true
+  name: cavasam
+  dev:
+    - SECRET
+    - REGION
+    - APPLICATION_ARN
+    - POSITIVE_TRACKER_CAMP_ID
+    - COOKIE_NAME
+    - REDIS_HOST
+    - OTP_URL
+    - OTP_TEMPLATE_ID
+    - ASSET_BUCKET_NAME
+    - TASK_BUCKET_NAME
+    - MONGO_CONNECTION
+    - SECRETACCESSKEY
+    - ACCESS_KEY
+    - OTP_AUTHKEY
+    - KMLID
+    - PHONE_NO
+    - NODE_ENV
+    - HEALTH_KMLID
+    - TEST_KMLID
+
+
+  prod:
+    - SECRET
+    - REGION
+    - APPLICATION_ARN
+    - POSITIVE_TRACKER_CAMP_ID
+    - COOKIE_NAME
+    - REDIS_HOST
+    - OTP_URL
+    - OTP_TEMPLATE_ID
+    - ASSET_BUCKET_NAME
+    - TASK_BUCKET_NAME
+    - MONGO_CONNECTION
+    - SECRETACCESSKEY
+    - ACCESS_KEY
+    - OTP_AUTHKEY
+    - KMLID
+    - PHONE_NO
+    - NODE_ENV
+    - HEALTH_KMLID
