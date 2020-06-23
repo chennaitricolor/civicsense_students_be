@@ -96,7 +96,8 @@ const userPlugin =  async (fastify, opts, next) => {
                 data.formData.indicator = indicator ? 'RED' : 'GREEN';
                 data.status = indicator ? 'OPEN' : 'CLOSED';
             } else {
-                data.status =  covidTracker ? 'ACCEPTED' : 'SUBMITTED';
+                data.status =  covidTracker === 'true' ? 'ACCEPTED' : 'SUBMITTED';
+                console.log('status', data.status);
             }
             if (data.formData) {
                 delete data.formData.isPositiveCampaign;
