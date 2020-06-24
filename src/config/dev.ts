@@ -18,6 +18,7 @@ const dev =  {
     s3: {
         taskBucketName : process.env.TASK_BUCKET_NAME,
         assetBucketName : process.env.ASSET_BUCKET_NAME,
+        publicBucketName: process.env.PUBLIC_BUCKET_NAME,
         kmlId: process.env.KMLID,
         healthkmlId: process.env.HEALTH_KMLID,
         testkmlId: process.env.TEST_KMLID
@@ -31,7 +32,8 @@ const dev =  {
         region: process.env.REGION
     },
     static: {
-        campaignId: process.env.POSITIVE_TRACKER_CAMP_ID
+        campaignId: process.env.POSITIVE_TRACKER_CAMP_ID,
+        photoHost: process.env.PHOTO_HOST
     }
 };
 export default dev;

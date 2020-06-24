@@ -25,6 +25,8 @@ pipelines:
       OTP_AUTHKEY:
       OTP_TEMPLATE_ID:
       ASSET_BUCKET_NAME:
+      PUBLIC_BUCKET_NAME:
+      PHOTO_HOST:
       TRAEFIK_FRONTEND_HOST:
       
       

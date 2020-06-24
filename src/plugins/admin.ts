@@ -163,14 +163,22 @@ const adminPlugin =  async (fastify, opts, next) => {
         const pass = new stream.Transform( {objectMode: true});
         writer.pipe(writestream);
         pass._transform = function({formData, ...chunk}, enc, cb) {
-            this.push({ 'Zone': chunk.locationNm, 'Latitude': chunk.location.coordinates[1], 'Longitude': chunk.location.coordinates[0], ...formData, 'Created At': moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS')});
+            this.push({
+                'Zone': chunk.locationNm,
+                'Latitude': chunk.location.coordinates[1],
+                'Longitude': chunk.location.coordinates[0],
+                ...formData,
+                'Created At': moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS'),
+                'Photo Link': `${fastify.config.static.photoHost}/api/csr/public/images/${chunk.photoId}`,
+                'Field Worker Contact': chunk.userId,
+            });
             cb();
         };
         pass.on('error', console.log);
         writer.on('error', console.log);
         await UserTask.find({
             ...filterQuery
-        }, '-_id userId photoId locationNm location formData createdAt').sort('createdAt').stream().pipe(pass).pipe(writer);
+        }, '-_id userId photoId photoId locationNm location formData createdAt').sort('createdAt').stream().pipe(pass).pipe(writer);
     };
 
     const getReport = async (filterQuery, redactIf, limit) => {

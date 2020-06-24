@@ -17,7 +17,9 @@ const local =  {
     },
     s3: {
         taskBucketName : process.env.TASK_BUCKET_NAME,
-        assetBucketName : process.env.ASSET_BUCKET_NAME
+        assetBucketName : process.env.ASSET_BUCKET_NAME,
+        publicBucketName: process.env.PUBLIC_BUCKET_NAME,
+
     },
     aws: {
         accessKey :  process.env.ACCESS_KEY,
@@ -28,7 +30,8 @@ const local =  {
         region: process.env.REGION
     },
     static: {
-        campaignId: process.env.POSITIVE_TRACKER_CAMP_ID
+        campaignId: process.env.POSITIVE_TRACKER_CAMP_ID,
+        photoHost: process.env.PHOTO_HOST
     }
 };
 export default local;

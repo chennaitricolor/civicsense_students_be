@@ -71,10 +71,10 @@ class AWSPlugin {
         return pass;
     }
 
-    public downloadFile(Key, isAsset) {
+    public downloadFile(Key, isAsset, bucketName) {
         try {
             const params = {
-                Bucket: isAsset ? this.config.s3.assetBucketName : this.config.s3.taskBucketName,
+                Bucket: bucketName ? bucketName : isAsset ? this.config.s3.assetBucketName : this.config.s3.taskBucketName,
                 Key,
             };
             return AwsConnector.getS3ClientConnection(this.config).getObject(params).createReadStream();
