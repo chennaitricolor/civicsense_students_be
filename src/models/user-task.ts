@@ -4,7 +4,11 @@ import Admin from './admin';
 import AdminCampaign from './admin-campaign';
 
 const UserTaskSchema = new mongoose.Schema({
-    userId: {type: Number, required: true},
+    submittedBy : {
+        userId: {type: Number, required: true},
+        region: {type: String, required: true},
+        persona: {type: String, required: true},
+    },
     location: mongoose.Schema.Types.Point,
     locationNm: {type: String, required: true},
     campaignId: {type: mongoose.Types.ObjectId, ref: AdminCampaign  },

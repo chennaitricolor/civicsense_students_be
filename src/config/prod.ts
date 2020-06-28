@@ -33,7 +33,9 @@ const prod =  {
     },
     static: {
         campaignId: process.env.POSITIVE_TRACKER_CAMP_ID,
-        photoHost: process.env.PHOTO_HOST
+        photoHost: process.env.PHOTO_HOST,
+        username: process.env.BASIC_AUTH_USER,
+        password: process.env.BASIC_AUTH_PASS
     }
 };
 export default prod;

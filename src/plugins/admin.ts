@@ -39,19 +39,42 @@ const adminPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const deleteCampaign = async (id) => {
+    const deleteCampaign = async (id, session) => {
         try {
-            return await AdminCampaign.findByIdAndUpdate(id, {
+            return await AdminCampaign.findByIdAndUpdate({ _id: id, createdBy: session.userId }, {
                 delete: true
             });
         } catch (e) {
             throw e;
         }
     };
-
-    const getReportDetailsV2 = async (filterObject, ws) => {
+    const writeReport = async (filterQuery, writestream) => {
+        const writer = csvWriter();
+        const pass = new stream.Transform( {objectMode: true});
+        writer.pipe(writestream);
+        pass._transform = function({formData, ...chunk}, enc, cb) {
+            this.push({
+                'Zone': chunk.locationNm,
+                'Latitude': chunk.location.coordinates[1],
+                'Longitude': chunk.location.coordinates[0],
+                ...formData,
+                'Created At': moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS'),
+                'Photo Link': `${fastify.config.static.photoHost}/api/csr/public/images/${chunk.photoId}`,
+                'Submitted Contact': chunk.submittedBy.userId,
+            });
+            cb();
+        };
+        pass.on('error', console.log);
+        writer.on('error', console.log);
+        await UserTask.find({
+            ...filterQuery
+        }, '-_id userId photoId photoId locationNm location formData createdAt').sort('createdAt').stream().pipe(pass).pipe(writer);
+    };
+    const getReportDetailsV2 = async (filterObject, session, ws) => {
         try {
-            const filterQuery: any = {};
+            const filterQuery: any = {
+                region: session.region
+            };
             if (filterObject.status) {
                 filterQuery.status = {$in: filterObject.status};
             }
@@ -59,7 +82,9 @@ const adminPlugin =  async (fastify, opts, next) => {
                 filterQuery.locationNm = filterObject.locationNm;
             }
             if (filterObject.userId) {
-                filterQuery.userId = filterObject.userId;
+                filterQuery.submittedBy = {
+                    userId: filterObject.userId
+                };
             }
             if (filterObject.campaignId) {
                 filterQuery.campaignId = mongoose.Types.ObjectId(filterObject.campaignId);
@@ -87,10 +112,12 @@ const adminPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const getReportDetails = async (filterObject) => {
+    const getReportDetails = async (filterObject, session) => {
         try {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
-            const filterQuery: any = {};
+            const filterQuery: any = {
+                region: session.region
+            };
             if (filterObject.status) {
                 filterQuery.status = {$in: filterObject.status};
             }
@@ -121,10 +148,12 @@ const adminPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const getPositiveReportDetails = async (filterObject) => {
+    const getPositiveReportDetails = async (filterObject, session) => {
         try {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
-            const filterQuery: any = {};
+            const filterQuery: any = {
+                region: session.region
+            };
             filterQuery.campaignId = mongoose.Types.ObjectId(filterObject.campaignId ? filterObject.campaignId : fastify.config.static.campaignId);
             if (filterObject.status) {
                 filterQuery.status = filterObject.status;
@@ -158,28 +187,6 @@ const adminPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-    const writeReport = async (filterQuery, writestream) => {
-        const writer = csvWriter();
-        const pass = new stream.Transform( {objectMode: true});
-        writer.pipe(writestream);
-        pass._transform = function({formData, ...chunk}, enc, cb) {
-            this.push({
-                'Zone': chunk.locationNm,
-                'Latitude': chunk.location.coordinates[1],
-                'Longitude': chunk.location.coordinates[0],
-                ...formData,
-                'Created At': moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS'),
-                'Photo Link': `${fastify.config.static.photoHost}/api/csr/public/images/${chunk.photoId}`,
-                'Field Worker Contact': chunk.userId,
-            });
-            cb();
-        };
-        pass.on('error', console.log);
-        writer.on('error', console.log);
-        await UserTask.find({
-            ...filterQuery
-        }, '-_id userId photoId photoId locationNm location formData createdAt').sort('createdAt').stream().pipe(pass).pipe(writer);
-    };
 
     const getReport = async (filterQuery, redactIf, limit) => {
         const aggregatePipeline: any = [
@@ -207,7 +214,7 @@ const adminPlugin =  async (fastify, opts, next) => {
         }
         return await UserTask.aggregate(aggregatePipeline).allowDiskUse(true);
     };
-    const getLiveCampaigns = async (live) => {
+    const getLiveCampaigns = async (live, session) => {
         live =  live ? live === 'true' : false;
         try {
             const today = new Date();
@@ -216,7 +223,8 @@ const adminPlugin =  async (fastify, opts, next) => {
                     $match: {
                         ...live && {endDate: {$gte: today}},
                         ...live && {delete: {$ne: true}},
-                        startDate: {$lte: today}
+                        startDate: {$lte: today},
+                        region: {$eq: session.region}
                     }
                 }, {
                     $facet: {
@@ -252,7 +260,7 @@ const adminPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-    const getCampaignDetails = async (campaignId, lastRecordCreatedAt) => {
+    const getCampaignDetails = async (campaignId, session, lastRecordCreatedAt) => {
         try {
             const findFilterForpagination = lastRecordCreatedAt ? {
                 createdAt: {
@@ -261,7 +269,7 @@ const adminPlugin =  async (fastify, opts, next) => {
             } : {};
             const status = fastify.config.static.campaignId === campaignId ? 'OPEN' : 'SUBMITTED';
             return {
-                campaignDetails: await AdminCampaign.findById(campaignId, '-createdAt -locationIds -updatedAt'),
+                campaignDetails: await AdminCampaign.find({ _id: campaignId, region: session.region }, '-createdAt -locationIds -updatedAt'),
                 entries: await UserTask.find({
                     campaignId,
                     status,
@@ -272,9 +280,9 @@ const adminPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-    const getCampaign = async (campaignId) => {
+    const getCampaign = async (campaignId, session) => {
         try {
-            return await AdminCampaign.findById(campaignId, 'rewards');
+            return await AdminCampaign.find({ _id: campaignId, region: session.region }, 'rewards');
         } catch (e) {
             throw e;
         }

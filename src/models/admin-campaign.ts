@@ -20,6 +20,9 @@ const AdminCampaignSchema = new mongoose.Schema({
     createdBy: { type: Number, ref: admin},
     delete: {type: Boolean},
     needForm: {type: Boolean},
+    needMedia: {type: Boolean, required: true},
+    persona: [{ type: String, required: true }],
+    region: { type: String, required: true },
     formFields: [SubFormSchema]
 }, {
     timestamps: true

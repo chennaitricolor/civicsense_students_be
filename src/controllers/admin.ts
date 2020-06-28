@@ -5,9 +5,14 @@ import uuid from 'uuid/v4';
 import AdminSchema from '../schemas/admin';
 import LocationSchema from '../schemas/location';
 import UserSchema from '../schemas/user';
+import BaseController from './base';
 
-class AdminController {
-    public setPostLoginAdminRoutes = async (fastify) => {
+class AdminController extends BaseController {
+
+    constructor(version) {
+        super(version);
+    }
+    public setV1PostLoginRoutes = async (fastify) => {
         fastify.post('/admin/add', AdminSchema.add, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
@@ -32,7 +37,7 @@ class AdminController {
             }
             try {
                 return reply.status(200).send({
-                    campaigns: await fastify.getLiveCampaigns(request.query.live)
+                    campaigns: await fastify.getLiveCampaigns(request.query.live, request.session.user)
                 });
             } catch (error) {
                 reply.status(500);
@@ -46,7 +51,7 @@ class AdminController {
         });
         fastify.get('/reports', AdminSchema.getReports, async (request, reply) => {
             if (request.validationError) {
-                return reply.code(400).send(request.validationError);
+                return reply.code(400).send(request.validationError, request.session.user);
             }
             try {
                 request.query.status = request.query.status && request.query.status.length && request.query.status.split(',');
@@ -62,7 +67,7 @@ class AdminController {
         });
         fastify.get('/positive-reports', AdminSchema.getPositiveReports, async (request, reply) => {
             if (request.validationError) {
-                return reply.code(400).send(request.validationError);
+                return reply.code(400).send(request.validationError, request.session.user);
             }
             try {
                 return reply.status(200).send(await fastify.getPositiveReportDetails(request.query));
@@ -70,28 +75,6 @@ class AdminController {
                 reply.status(500);
                 return reply.send({
                     error ,
-                    message: error.message ? error.message : 'error happened'
-                });
-
-            }
-        });
-        fastify.get('/v2/reports', AdminSchema.getReports, async (request, reply) => {
-            if (request.validationError) {
-                return reply.code(400).send(request.validationError);
-            }
-            try {
-                request.query.status = request.query.status && request.query.status.length && request.query.status.split(',');
-                if (request.query.download) {
-                    const pass = new stream.PassThrough();
-                    fastify.getReportDetailsV2(request.query, pass);
-                    return reply.send(pass);
-                } else {
-                    return reply.status(200).send(await fastify.getReportDetails(request.query));
-                }
-            } catch (error) {
-                reply.status(500);
-                return reply.send({
-                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -114,7 +97,7 @@ class AdminController {
         });
         fastify.delete('/campaigns/:campaignId', {}, async (request, reply) => {
             try {
-                return reply.status(200).send(await fastify.deleteCampaign(request.params.campaignId));
+                return reply.status(200).send(await fastify.deleteCampaign(request.params.campaignId, request.session.user));
             } catch (error) {
                 reply.status(500);
                 return reply.send({
@@ -138,6 +121,7 @@ class AdminController {
                     }
                 }
                 request.body.createdBy = request.session.user.userId;
+                request.body.region =  request.session.user.region;
                 await fastify.insertCampaign(request.body);
                 const userData = await fastify.findLocationBasedUserData(request.body.locationIds);
                 userData.forEach(async (data) => {
@@ -166,7 +150,7 @@ class AdminController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                return reply.status(200).send(await fastify.getCampaignDetails(request.params.campaignId,  request.query ? request.query.lastRecordCreatedAt : undefined));
+                return reply.status(200).send(await fastify.getCampaignDetails(request.params.campaignId, request.session.user,  request.query ? request.query.lastRecordCreatedAt : undefined));
             } catch (error) {
                 reply.status(500);
                 return reply.send({
@@ -178,7 +162,7 @@ class AdminController {
         });
         fastify.get('/location', {}, async (request, reply) => {
             try {
-                return reply.status(200).send(await fastify.getLocation());
+                return reply.status(200).send(await fastify.getLocation(request.session.user));
             } catch (error) {
                 reply.status(500);
                 return reply.send({
@@ -194,7 +178,13 @@ class AdminController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                const campaignResponse = await fastify.getCampaign(request.body.campaignId);
+                const campaignResponse = await fastify.getCampaign(request.body.campaignId, request.session.user);
+                if (!campaignResponse) {
+                    reply.status(404);
+                    return reply.send({
+                        message: 'Campaign id not found'
+                    });
+                }
                 request.body.rewards = request.body.status === 'ACCEPTED' ? campaignResponse.rewards : 0;
                 const data = await fastify.updateTask(request.params.submissionId, request.body);
                 if (request.body.rewards) {
@@ -282,16 +272,48 @@ class AdminController {
         });
 
     };
-    public setPreLoginAdminRoutes = async (fastify) => {
+    public setV2PostLoginRoutes = async (fastify) => {
+        fastify.get('/reports', AdminSchema.getReports, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                request.query.status = request.query.status && request.query.status.length && request.query.status.split(',');
+                if (request.query.download) {
+                    const pass = new stream.PassThrough();
+                    fastify.getReportDetailsV2(request.query, request.session.user, pass);
+                    return reply.send(pass);
+                } else {
+                    return reply.status(200).send(await fastify.getReportDetails(request.query));
+                }
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+                });
+
+            }
+        });
+    };
+    public setV1PreLoginRoutes = async (fastify) => {
         fastify.post('/admin/login', UserSchema.login, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                if (await  fastify.verifyMobileOTP(request.body.userId, request.body.otp) && await fastify.findAdmin(request.body.userId)) {
+                if (await fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+                    const adminDetails = await fastify.findAdmin(request.body.userId);
+                    if (!adminDetails) {
+                        return reply.status(401).send({
+                            success: false
+                        });
+                    }
                     await fastify.insertUser(request.body, true);
                     request.session.user = {
                         userId: request.body.userId,
+                        region: adminDetails.region,
+                        persona: adminDetails.persona,
                         isAdmin: true
                     };
                     // save sessionId in redis
@@ -313,8 +335,6 @@ class AdminController {
             }
         });
 
-    };
-}
+    }; }
 
-export const PostLoginAdminController = new AdminController().setPostLoginAdminRoutes;
-export const PreLoginAdminController = new AdminController().setPreLoginAdminRoutes;
+export default AdminController;

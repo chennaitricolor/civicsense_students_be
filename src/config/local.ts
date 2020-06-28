@@ -31,7 +31,9 @@ const local =  {
     },
     static: {
         campaignId: process.env.POSITIVE_TRACKER_CAMP_ID,
-        photoHost: process.env.PHOTO_HOST
+        photoHost: process.env.PHOTO_HOST,
+        username: 'user',
+        password: 'password'
     }
 };
 export default local;

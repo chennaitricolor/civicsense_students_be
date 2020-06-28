@@ -34,6 +34,8 @@ const adminSchema = {
     add: {
         schema: {
             body: Joi.object().keys({
+                region: Joi.string().required(),
+                persona: Joi.string().required(),
                 name: customStringJoi.customValidation().generateRandomName(),
                 dateOfBirth: Joi.date().format('DD-MM-YYYY').raw(),
                 email: Joi.string().lowercase().email(),

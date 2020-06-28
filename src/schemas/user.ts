@@ -1,4 +1,5 @@
 import joiObjectId from 'joi-objectid';
+import Constants from '../content/root';
 import { customStringJoi, Joi, phoneJoi } from '../util/joiHelper';
 
 Joi.objectId = joiObjectId(Joi);
@@ -50,7 +51,7 @@ const userSchema = {
                 file: Joi.array().items(Joi.object().keys({
                     filename: Joi.string().required(),
                     data: Joi.binary()
-                }).options({ allowUnknown: true })).required()
+                }).options({ allowUnknown: true }))
             }).required()
         },
         schemaCompiler: (schema) => (data) => {
@@ -96,6 +97,22 @@ const userSchema = {
         attachValidation: true
     },
 
+    loginV2: {
+        schema: {
+            body: Joi.object().keys({
+                userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
+                    .required(),
+                persona: Joi.string().required(),
+                otp: Joi.number().max(9999).required(),
+            }).required()
+
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
+
     signup: {
         schema: {
             body: Joi.object().keys({
@@ -114,6 +131,7 @@ const userSchema = {
         },
         attachValidation: true
     },
+
     updateProfile: {
         schema: {
             body: Joi.object().keys({

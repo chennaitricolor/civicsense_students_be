@@ -82,7 +82,7 @@ const userPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const insertUserTask = async (userId, formData, covidTracker) => {
+    const insertUserTask = async ({userId, region, persona}, formData, covidTracker) => {
         try {
             const getIndicator = (dataVal) => {
                 const indicatorCalculator = (validationResult: { [s: string]: boolean; }) => Object.values(validationResult).reduce((a, b) => a && b);
@@ -90,7 +90,11 @@ const userPlugin =  async (fastify, opts, next) => {
             };
             const { ...data} = formData;
             const isPositiveCampaign = formData &&  formData.formData && formData.formData.isPositiveCampaign;
-            data.userId = userId;
+            data.submittedBy = {
+                userId,
+                region,
+                persona
+            };
             if (isPositiveCampaign) {
                 const indicator = getIndicator(data.formData);
                 data.formData.indicator = indicator ? 'RED' : 'GREEN';
@@ -187,16 +191,16 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-    const updateLocation = async (userId, data) => {
+    const updateLocation = async ({ userId, region }, data) => {
         try {
             data.currentLocation = (await fastify.getZoneFromLocation(data.currentLocation.coordinates, 'Point')).id;
             if (data.inUse) {
-                await User.findByIdAndUpdate(userId, data);
+                await User.findOneAndUpdate({ _id: userId, region }, data);
                 return data.currentLocation;
             }
             else if (data.pastLocation !== data.currentLocation.toString()) {
                 delete data.pastLocation;
-                await User.findByIdAndUpdate(userId, data);
+                await User.findOneAndUpdate({ _id: userId, region }, data);
                 return data.currentLocation;
             } else {
                 return data.pastLocation;
@@ -216,9 +220,9 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-    const updateMobileDeviceEndpoint = async (userId, mobileDeviceEndpoint, platform) => {
+    const updateMobileDeviceEndpoint = async ({ userId, region }, mobileDeviceEndpoint, platform) => {
         try {
-            return await User.findByIdAndUpdate(userId, {
+            return await User.findOneAndUpdate({ _id: userId, region }, {
                 $set: {
                     mobileDeviceEndpoint, platform
                 }
@@ -234,14 +238,14 @@ const userPlugin =  async (fastify, opts, next) => {
             throw e;
         }
     };
-    const getUserTasks = async (userId, coordinates) => {
+    const getUserTasks = async ({userId, region, persona}, coordinates) => {
         try {
             const zoneArrayVal: any[] = [];
             if (!coordinates) {
-                zoneArrayVal.push((await User.findById(userId, 'currentLocation')).currentLocation);
+                zoneArrayVal.push((await User.findOneAndUpdate({ _id: userId, region }, 'currentLocation')).currentLocation);
             } else {
                const { currentLocation, zoneArray } = await fastify.getZoneFromLocation(coordinates, 'Point');
-               await User.findByIdAndUpdate(userId, {
+               await User.findByIdAndUpdate({ _id: userId, region }, {
                     currentLocation
                 });
                zoneArrayVal.push(...zoneArray.map((a) => a._id));
@@ -252,6 +256,12 @@ const userPlugin =  async (fastify, opts, next) => {
                 },
                 startDate: {
                     $lte: new Date(),
+                },
+                region: {
+                    $eq: region,
+                },
+                persona: {
+                    $eq: persona,
                 },
                 delete: {
                     $ne: true
@@ -265,9 +275,9 @@ const userPlugin =  async (fastify, opts, next) => {
         }
     };
 
-    const getUserTask = async (taskId) => {
+    const getUserTask = async (taskId, { region, persona}) => {
         try {
-            return await AdminCampaign.findById(taskId, 'startDate endDate campaignName description rewards rules needForm formFields');
+            return await AdminCampaign.find({ _id: taskId, region, persona }, 'startDate endDate campaignName description rewards rules needForm formFields');
         } catch (e) {
             throw e;
         }

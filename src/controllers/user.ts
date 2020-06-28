@@ -1,10 +1,48 @@
 'use strict';
 import _ from 'lodash';
 import mongoose from 'mongoose';
+import Constants from '../content/root';
 import UserSchema from '../schemas/user';
 import { XOR } from '../util/helper';
-class UserController {
-    public setPreLoginUserRoutes = async (fastify) => {
+import BaseController from './base';
+class UserController extends BaseController {
+
+    constructor(version) {
+        super(version);
+    }
+
+    public setV1PreLoginRoutes =  async (fastify) => {
+        const loginHandler = async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                if (request.body.userId === process.env.PHONE_NO || await fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+                    request.body.lastUsedDateTime = Date.now();
+                    await fastify.insertUser(request.body, false);
+                    request.session.user = {
+                        userId: request.body.userId,
+                        region: 'GCC',
+                        persona: 'Citizen'
+                    };
+                    // save sessionId in redis
+                    return reply.send({
+                        success: true
+                    });
+                }
+                return reply.status(401).send({
+                    success: false
+                });
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+        };
         fastify.get('/user/valid', UserSchema.valid, async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
@@ -149,12 +187,12 @@ class UserController {
             }
         });
         fastify.post('/user/login', UserSchema.login, async (request, reply) => {
-            await this.loginHandler(fastify, request, reply);
+            await loginHandler(request, reply);
         });
         fastify.post('/user/signup', UserSchema.signup, async (request, reply) => {
             request.body.currentLocation = (await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point')).id;
             request.body.defaultLocation = request.body.currentLocation;
-            await this.loginHandler(fastify, request, reply);
+            await loginHandler(request, reply);
         });
         fastify.get('public/images/:imageId', UserSchema.getImage, async (request, reply) => {
             try {
@@ -169,47 +207,58 @@ class UserController {
             }
         });
     };
-    public loginHandler = async (fastify, request, reply) => {
-        if (request.validationError) {
-            return reply.code(400).send(request.validationError);
-        }
-        try {
-            if (await fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
-                request.body.lastUsedDateTime = Date.now();
-                await fastify.insertUser(request.body, false);
-                request.session.user = {
-                    userId: request.body.userId
-                };
-                // save sessionId in redis
-                return reply.send({
-                    success: true
-                });
-            } else if (request.body.userId === process.env.PHONE_NO) {
-                request.body.lastUsedDateTime = Date.now();
-                await fastify.insertUser(request.body, false);
-                request.session.user = {
-                    userId: request.body.userId
-                };
-                // save sessionId in redis
-                return reply.send({
-                    success: true
-                });
+    public setV2PreLoginRoutes = async (fastify) => {
+        const loginHandler = async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
             }
-            return reply.status(401).send({
-                success: false
-            });
-        } catch (error) {
-            reply.status(500);
-            return reply.send({
-                error,
-                message: error.message ? error.message : 'error happened'
+            try {
+                const { regions: supportedregions, userPersonas } = await fastify.getStatic(2);
+                if (!supportedregions.includes(request.headers.region) ) {
+                    return reply.code(406).send({});
+                }
+                if (!userPersonas.includes(request.body.persona) ) {
+                    return reply.code(400).send({ message: 'Persona not allowed'});
+                }
+                if (request.body.userId === process.env.PHONE_NO || await fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
+                    request.body.lastUsedDateTime = Date.now();
+                    await fastify.insertUser({ ...request.body,  region: request.headers.region}, false);
+                    request.session.user = {
+                        userId: request.body.userId,
+                        region: request.headers.region,
+                        persona: request.body.persona
+                    };
+                    // save sessionId in redis
+                    return reply.send({
+                        success: true
+                    });
+                }
+                return reply.status(401).send({
+                    success: false
+                });
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
 
-            });
+                });
 
-        }
+            }
+        };
+        fastify.after(() => {
+            fastify.addHook('onRequest', fastify.basicAuth);
+
+            fastify.get('/', {}, async (request, reply) => {
+                reply.status(200).send(await fastify.getStatic(2));
+            });
+          });
+        fastify.post('/user/login', UserSchema.login, async (request, reply) => {
+            await loginHandler(request, reply);
+        });
+
     };
-
-    public setPostLoginUserRoutes = async (fastify) => {
+    public setV1PostLoginRoutes = async (fastify) => {
         fastify.get('/user', async (request, reply) => {
             if (request.validationError) {
                 return reply.code(400).send(request.validationError);
@@ -258,7 +307,7 @@ class UserController {
             try {
                 reply.send({
                     success: true,
-                    tasks: await fastify.getUserTasks(request.session.user.userId, request.query.coordinates)
+                    tasks: await fastify.getUserTasks(request.session.user, request.query.coordinates)
                 });
             } catch (error) {
                 reply.status(500);
@@ -278,7 +327,7 @@ class UserController {
             try {
                 reply.send({
                     success: true,
-                    task: await fastify.getUserTask(request.params.taskId)
+                    task: await fastify.getUserTask(request.params.taskId, request.session.user)
                 });
             } catch (error) {
                 reply.status(500);
@@ -312,9 +361,7 @@ class UserController {
 
         });
         fastify.post('/user/task', UserSchema.addTask, async (request, reply) => {
-            const file = request.body.file[0];
-            const userTaskRequestValidation = async () => {
-                const userTaskDetails = await fastify.getUserTask(request.body.campaignId);
+            const userTaskRequestValidation = async (userTaskDetails) => {
                 if (XOR(userTaskDetails.needForm, request.body.formData)) {
                     return reply.code(400).send({
                         message: 'Check for needForm'
@@ -339,23 +386,33 @@ class UserController {
                 }
             };
 
-            if (request.validationError || !file.data) {
+            if (request.validationError) {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                await userTaskRequestValidation();
+                const userTaskDetails = await fastify.getUserTask(request.body.campaignId, request.session.user);
+                if (!userTaskDetails) {
+                    return reply.code(404).send({
+                        message: 'campaign not found'
+                    });
+                }
+                await userTaskRequestValidation(userTaskDetails);
                 request.body.location.type = 'Point' ;
                 request.body.locationNm = (await fastify.getZoneFromLocation(request.body.location.coordinates, 'Point', false)).id;
-                console.log(request.body.locationNm);
                 // const duplicateRecords = await fastify.findDuplicateLocationData(request.body);
                 // if (Array.isArray(duplicateRecords) && duplicateRecords.length) {
                 //     return reply.status(200).send({message: 'duplicate location', success: false});
                 // }
-                const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
-                await fastify.awsPlugin.uploadFile(file, fileKey, false);
-                request.body.photoId = fileKey;
-                console.log('covid', typeof fastify.config.covidTracker, fastify.config.covidTracker);
-                await fastify.insertUserTask(request.session.user.userId, request.body, fastify.config.covidTracker);
+                const file = (request.body.file || [])[0];
+                if (userTaskDetails.needMedia) {
+                    if (!file.data) {
+                        return reply.code(400).send({ message: 'Media needed'});
+                    }
+                    const fileKey = `${mongoose.Types.ObjectId()}.${file.filename.split('.').pop()}`;
+                    await fastify.awsPlugin.uploadFile(file, fileKey, false);
+                    request.body.photoId = fileKey;
+                }
+                await fastify.insertUserTask(request.session.user, request.body, fastify.config.covidTracker);
                 await fastify.updateEntries(request.body.campaignId, true);
                 return reply.status(200).send({
                     success: true
@@ -376,7 +433,7 @@ class UserController {
             }
             try {
                 const mobileEndpointArn = await fastify.awsPlugin.snsRegistration(request.body.deviceToken);
-                await fastify.updateMobileDeviceEndpoint(request.session.user.userId, mobileEndpointArn, request.body.platform);
+                await fastify.updateMobileDeviceEndpoint(request.session.user, mobileEndpointArn, request.body.platform);
                 return reply.status(200).send({
                     success: true,
                     currentMobileEndpoint: mobileEndpointArn,
@@ -404,7 +461,7 @@ class UserController {
             try {
                 reply.send({
                     success: true,
-                    currentLocation: await fastify.updateLocation(request.session.user.userId, request.body)
+                    currentLocation: await fastify.updateLocation(request.session.user, request.body)
                 });
             } catch (error) {
                 reply.status(500);
@@ -448,7 +505,7 @@ class UserController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error: error .message,
+                    error: error.message,
                     message: 'error error.message ? error.message : happened'
                 });
 
@@ -462,7 +519,7 @@ class UserController {
                             success: false
                         });
                     } else {
-                        request.session = undefined;
+                        delete request.session;
                         return reply.send({
                             success: true
                         });
@@ -479,7 +536,9 @@ class UserController {
             }
         });
     };
+    public setV2PostLoginRoutes = async (fastify) => {
+        this.setV1PostLoginRoutes(fastify);
+    };
 }
 
-export const PreLoginUserController = new UserController().setPreLoginUserRoutes;
-export const PostLoginUserController = new UserController().setPostLoginUserRoutes;
+export default UserController;

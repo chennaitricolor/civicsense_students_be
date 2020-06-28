@@ -11,6 +11,17 @@ export class PreHandlerHook {
         });
     }
 
+    public static regionAuthorization(fastify) {
+        fastify.addHook('preHandler',  (request, reply, next) => {
+                if (request.session.region && request.session.region === request.header.region) {
+                    next();
+                } else {
+                    return reply.status(401).send({ error: 'Unauthorized' });
+                }
+
+        });
+    }
+
     public static adminAuthenticationPreHandler(fastify) {
         fastify.addHook('preHandler',  (request, reply, next) => {
             if (!request.session.user || !request.session.user.isAdmin) {

@@ -16,7 +16,10 @@ const MetaSchema = new mongoose.Schema({
         phone: {type: Number},
     },
     meta: {type: String},
-    version: {type: String, required: true}
+    version: {type: Object, required: true},
+    regions: [{type: String, required: true}],
+    userPersona: [{type: String, required: true}],
+    revision: {type: Number, required: true}
 }, {
     timestamps: true
 });

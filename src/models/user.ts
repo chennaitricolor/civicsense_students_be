@@ -14,6 +14,7 @@ const UserSchema = new mongoose.Schema({
     defaultLocation: { type: mongoose.Types.ObjectId, ref: location},
     lastUsedDateTime: { type: Date },
     gender: {type: String, enum: ['male', 'female', 'other', undefined]},
+    region: { type: String, required: true}
 }, {
     timestamps: true
 });

@@ -9,9 +9,9 @@ const LocationPlugin = async (fastify, opts, next) => {
         }
     };
 
-    const getLocation = async () => {
+    const getLocation = async (session) => {
         try {
-            return await Location.find({}, 'locationNm state country');
+            return await Location.find({ region: session.region }, 'locationNm state country');
         } catch (e) {
             throw e;
         }
