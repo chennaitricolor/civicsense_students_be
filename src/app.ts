@@ -71,7 +71,7 @@ export class FastifyPluginRegister implements FastifyContext  {
 
       // service without auth
       fastify.register(HealthCheck, { prefix:  this.getContextPath()});
-      // fastify.register(v1UserController.setPreLoginRoutes(), { prefix:  this.getContextPath()});
+      fastify.register(v1UserController.setPreLoginRoutes(), { prefix:  this.getContextPath()});
       fastify.register(v2UserController.setPreLoginRoutes(), { prefix:  this.getContextPath(versionPrefix)});
       fastify.register(v1AdminController.setPreLoginRoutes(), { prefix:  this.getContextPath()});
 
@@ -81,7 +81,7 @@ export class FastifyPluginRegister implements FastifyContext  {
         PreHandlerHook.authenticationPreHandler(instance);
         this.setMultipartProcessing(instance);
         instance.register(v1UserController.setPostLoginRoutes(), { prefix:  this.getContextPath()});
-        fastify.register(this.getValidatedRoute(v2UserController.setPostLoginRoutes()), { prefix:  this.getContextPath(versionPrefix)});
+        instance.register(this.getValidatedRoute(v2UserController.setPostLoginRoutes()), { prefix:  this.getContextPath(versionPrefix)});
         next();
       });
 

@@ -37,6 +37,7 @@ vault:
     - HEALTH_KMLID
     - TEST_KMLID
     - COVID_TRACKER
+    - TREATMENT_KMLID
 
 
   prod:
@@ -62,3 +63,4 @@ vault:
     - HEALTH_KMLID
     - TEST_KMLID
     - COVID_TRACKER
+    - TREATMENT_KMLID

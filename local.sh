@@ -1,0 +1,14 @@
+export NODE_ENV=local
+export TASK_BUCKET_NAME=civic.sense
+export ASSET_BUCKET_NAME=civic.sense.assets
+export ACCESS_KEY='accesskey'
+export SECRETACCESSKEY='devsecretkey'
+export APPLICATION_ARN='applicationArn'
+export REGION=ap-south-1
+export COOKIE_NAME=cookie-name
+export SECRET=secret
+export MONGO_CONNECTION=''
+export OTP_URL='http://localhost:8080/otp'
+export OTP_AUTHKEY='otpAuthKey'
+export OTP_TEMPLATE_ID='otpTemplateId'
+export COVID_TRACKER=false

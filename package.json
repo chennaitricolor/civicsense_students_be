@@ -14,7 +14,7 @@
     "start:dev": "npm run start-dev-server",
     "start:watch": "npm run start:all",
     "start-fake-services": "nodemon --config ./fake-services/nodemon.json ./fake-services/start.js",
-    "start-dev-server": "cross-env tsc && NODE_ENV=local node ./dist/server.js",
+    "start-dev-server": "cross-env tsc && NODE_ENV=local node $NODE_DEBUG_OPTION ./dist/server.js",
     "start-dev-server-watch": "cross-env tsc && NODE_ENV=local nodemon  ./src/server.ts",
     "tsc": "tsc -p tsconfig.json",
     "start": "node ./dist/server.js",

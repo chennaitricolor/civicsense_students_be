@@ -15,7 +15,7 @@ const UserTaskSchema = new mongoose.Schema({
     status: {type: String, required: true, enum: ['ACCEPTED', 'REJECTED', 'SUBMITTED', 'OPEN', 'CLOSED']},
     validatedBy: {type: Number, ref:  Admin},
     comments: {type: String},
-    photoId: {type: String, required: true},
+    photoId: {type: String},
     rewards: {type: Number},
     formData: {type: Object},
 }, {

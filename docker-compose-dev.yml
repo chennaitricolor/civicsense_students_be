@@ -28,6 +28,7 @@ services:
       TEST_KMLID: ${TEST_KMLID}
       COVID_TRACKER: ${COVID_TRACKER}
       PHOTO_HOST: ${PHOTO_HOST}
+      TREATMENT_KMLID: ${TREATMENT_KMLID}
     ports:
       - "3010:3010"
     networks:

@@ -55,7 +55,7 @@ class AdminController extends BaseController {
             }
             try {
                 request.query.status = request.query.status && request.query.status.length && request.query.status.split(',');
-                return reply.status(200).send(await fastify.getReportDetails(request.query));
+                return reply.status(200).send(await fastify.getReportDetails(request.query, request.session.user));
             } catch (error) {
                 reply.status(500);
                 return reply.send({
@@ -70,7 +70,7 @@ class AdminController extends BaseController {
                 return reply.code(400).send(request.validationError, request.session.user);
             }
             try {
-                return reply.status(200).send(await fastify.getPositiveReportDetails(request.query));
+                return reply.status(200).send(await fastify.getPositiveReportDetails(request.query, request.session.user));
             } catch (error) {
                 reply.status(500);
                 return reply.send({
@@ -120,6 +120,7 @@ class AdminController extends BaseController {
                         });
                     }
                 }
+                console.log(request.session.user);
                 request.body.createdBy = request.session.user.userId;
                 request.body.region =  request.session.user.region;
                 await fastify.insertCampaign(request.body);
@@ -284,7 +285,7 @@ class AdminController extends BaseController {
                     fastify.getReportDetailsV2(request.query, request.session.user, pass);
                     return reply.send(pass);
                 } else {
-                    return reply.status(200).send(await fastify.getReportDetails(request.query));
+                    return reply.status(200).send(await fastify.getReportDetails(request.query, request.session.user));
                 }
             } catch (error) {
                 reply.status(500);
@@ -309,6 +310,7 @@ class AdminController extends BaseController {
                             success: false
                         });
                     }
+                    console.log(adminDetails);
                     await fastify.insertUser(request.body, true);
                     request.session.user = {
                         userId: request.body.userId,

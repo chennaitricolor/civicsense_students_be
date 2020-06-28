@@ -1,7 +1,6 @@
 'use strict';
 import _ from 'lodash';
 import mongoose from 'mongoose';
-import Constants from '../content/root';
 import UserSchema from '../schemas/user';
 import { XOR } from '../util/helper';
 import BaseController from './base';
@@ -95,6 +94,21 @@ class UserController extends BaseController {
             }
             try {
                 return reply.send(await fastify.awsPlugin.downloadFile(fastify.config.s3.testkmlId, true));
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error: error .message,
+                    message: 'error error.message ? error.message : happened'
+                });
+
+            }
+        });
+        fastify.get('/treatmentCenters', {}, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                return reply.send(await fastify.awsPlugin.downloadFile(fastify.config.s3.treatmentkmlId, true));
             } catch (error) {
                 reply.status(500);
                 return reply.send({
@@ -213,11 +227,11 @@ class UserController extends BaseController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                const { regions: supportedregions, userPersonas } = await fastify.getStatic(2);
-                if (!supportedregions.includes(request.headers.region) ) {
+                const { region: supportedRegions } = (await fastify.getStatic(2)).toObject();
+                if (!Object.keys(supportedRegions).includes(request.headers.region) ) {
                     return reply.code(406).send({});
                 }
-                if (!userPersonas.includes(request.body.persona) ) {
+                if (!supportedRegions[request.headers.region].userPersona.includes(request.body.persona) ) {
                     return reply.code(400).send({ message: 'Persona not allowed'});
                 }
                 if (request.body.userId === process.env.PHONE_NO || await fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
@@ -253,7 +267,12 @@ class UserController extends BaseController {
                 reply.status(200).send(await fastify.getStatic(2));
             });
           });
-        fastify.post('/user/login', UserSchema.login, async (request, reply) => {
+        fastify.post('/user/login', UserSchema.loginV2, async (request, reply) => {
+            await loginHandler(request, reply);
+        });
+        fastify.post('/user/signup', UserSchema.signup, async (request, reply) => {
+            request.body.currentLocation = (await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point')).id;
+            request.body.defaultLocation = request.body.currentLocation;
             await loginHandler(request, reply);
         });
 
@@ -418,8 +437,7 @@ class UserController extends BaseController {
                     success: true
                 });
             } catch (error) {
-                reply.status(500);
-                reply.send({
+                return reply.code(500).send({
                     error,
                     message: error.message ? error.message : 'error happened'
 

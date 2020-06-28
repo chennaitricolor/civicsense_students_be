@@ -21,7 +21,8 @@ const qa = {
         publicBucketName: process.env.PUBLIC_BUCKET_NAME,
         kmlId: process.env.KMLID,
         healthkmlId: process.env.HEALTH_KMLID,
-        testkmlId: process.env.TEST_KMLID
+        testkmlId: process.env.TEST_KMLID,
+        treatmentkmlId: process.env.TREATMENT_KMLID
     },
     aws: {
         accessKey :  process.env.ACCESS_KEY,

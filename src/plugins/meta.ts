@@ -4,7 +4,7 @@ const MetaPlugin = async (fastify, opts, next) => {
 
     const getStatic = async (revision = 1) => {
         try {
-            return await Meta.findOne({ revision }, '-_id');
+            return await Meta.findOne({ revision }, '-_id, -revision');
         } catch (e) {
             throw e;
         }

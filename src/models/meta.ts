@@ -17,8 +17,7 @@ const MetaSchema = new mongoose.Schema({
     },
     meta: {type: String},
     version: {type: Object, required: true},
-    regions: [{type: String, required: true}],
-    userPersona: [{type: String, required: true}],
+    regions: {type: Object, required: true},
     revision: {type: Number, required: true}
 }, {
     timestamps: true

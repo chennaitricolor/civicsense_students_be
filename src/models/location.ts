@@ -8,7 +8,8 @@ const LocationSchema = new mongoose.Schema({
     state: {type: String, required: true},
     country: {type: String, required: true},
     createdBy: {type: String, ref: admin},
-    location: mongoose.Schema.Types.MultiPolygon
+    location: mongoose.Schema.Types.MultiPolygon,
+    region: {type: String}
 }, {
     timestamps: true
 });

@@ -15,6 +15,8 @@ const adminSchema = {
                 endDate: Joi.date().format('DD-MM-YYYY').raw().required(),
                 locationIds: Joi.array().items(Joi.objectId()).min(1).required(),
                 needForm: Joi.boolean().default(false),
+                needMedia: Joi.boolean().default(false).required(),
+                persona: Joi.array()
             }).when(Joi.object({ needForm: true}).unknown(), {
                 then: Joi.object({
                     formFields: Joi.array().items(Joi.object().keys({
@@ -35,9 +37,8 @@ const adminSchema = {
         schema: {
             body: Joi.object().keys({
                 region: Joi.string().required(),
-                persona: Joi.string().required(),
+                persona: Joi.string().default('admin'),
                 name: customStringJoi.customValidation().generateRandomName(),
-                dateOfBirth: Joi.date().format('DD-MM-YYYY').raw(),
                 email: Joi.string().lowercase().email(),
                 gender: Joi.string().valid('male', 'female', 'other'),
                 userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true}).required(),

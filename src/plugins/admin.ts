@@ -11,7 +11,7 @@ const adminPlugin =  async (fastify, opts, next) => {
 
     const findAdmin = async (userId) => {
         try {
-            return await Admin.findById(userId, '_id');
+            return await Admin.findById(userId, '_id region persona');
         } catch (e) {
             throw e;
         }

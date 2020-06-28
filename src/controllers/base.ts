@@ -6,8 +6,6 @@ const noImplementation = () => {
 
 class BaseController {
     public version: any;
-    public routes: any;
-    public routeMap: any;
     constructor(version) {
         if (this.constructor === BaseController) {
             throw new Error((`Cant't instantiate a base abstract class`));

@@ -10,6 +10,7 @@ const locationSchema = {
                 }),
                 state: Joi.string().required(),
                 country: Joi.string().required(),
+                region: Joi.string().required()
             }).required()
         },
         schemaCompiler: (schema) => (data) => {
