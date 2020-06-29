@@ -38,6 +38,8 @@ vault:
     - TEST_KMLID
     - COVID_TRACKER
     - TREATMENT_KMLID
+    - BASIC_AUTH_USER
+    - BASIC_AUTH_PASS
 
 
   prod:
@@ -64,3 +66,5 @@ vault:
     - TEST_KMLID
     - COVID_TRACKER
     - TREATMENT_KMLID
+    - BASIC_AUTH_USER
+    - BASIC_AUTH_PASS
