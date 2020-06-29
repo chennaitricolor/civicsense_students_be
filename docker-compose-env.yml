@@ -1,5 +1,7 @@
 version: "3.7"
 
+volumes:
+  redis:
 networks:
   default:
   traefik:
@@ -11,6 +13,8 @@ services:
     image: redis
     networks:
       - default
+    volumes:
+      - redis:/var/lib/redis
 
   civicsense_students_be:
     image: ${REGISTRY}/${IMAGETAG}:${GO_REVISION}
