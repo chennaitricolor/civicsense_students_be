@@ -275,6 +275,47 @@ class UserController extends BaseController {
             request.body.defaultLocation = request.body.currentLocation;
             await loginHandler(request, reply);
         });
+        fastify.get('/user/valid', UserSchema.valid, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                await fastify.getZoneFromLocation(request.query.coordinates, 'Point', false);
+                return reply.status(200).send({
+                    success: true
+                });
+            } catch (error) {
+                return reply.status(401).send({
+                    message: 'App not supported'
+                });
+
+            }
+        });
+        fastify.get('/user/generate-otp', UserSchema.generateOTP, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+
+                const { phoneNumber } = request.query;
+                if (phoneNumber && !await fastify.generateMobileOTP(phoneNumber)) {
+                    return reply.status(200).send({
+                        success: false
+                    });
+                }
+                return reply.status(200).send({
+                    success: true
+                });
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+        });
 
     };
     public setV1PostLoginRoutes = async (fastify) => {
