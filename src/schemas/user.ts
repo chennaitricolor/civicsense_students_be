@@ -120,6 +120,7 @@ const userSchema = {
                     .required(),
                 otp: Joi.number().max(9999).required(),
                 name: customStringJoi.customValidation().generateRandomName(),
+                persona: Joi.string(),
                 currentLocation: Joi.object().keys({
                     coordinates: Joi.array().items(Joi.number()),
                 }).required()
