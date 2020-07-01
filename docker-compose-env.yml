@@ -15,7 +15,13 @@ services:
       - default
     volumes:
       - redis:/var/lib/redis
-
+    deploy:
+      labels:
+        - manager.service=true
+      placement:
+        constraints:
+          - node.role == manager
+          
   civicsense_students_be:
     image: ${REGISTRY}/${IMAGETAG}:${GO_REVISION}
     env_file: env_vars/${GO_STAGE_NAME}.env
