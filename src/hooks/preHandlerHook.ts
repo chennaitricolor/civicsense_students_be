@@ -13,7 +13,8 @@ export class PreHandlerHook {
 
     public static regionAuthorization(fastify) {
         fastify.addHook('preHandler',  (request, reply, next) => {
-                if (request.session.region && request.session.region === request.header.region) {
+                console.log(request.session);
+                if (request.session.user && request.session.user.region === request.headers.region) {
                     next();
                 } else {
                     return reply.status(401).send({ error: 'Unauthorized' });
