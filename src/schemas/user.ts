@@ -96,6 +96,21 @@ const userSchema = {
         },
         attachValidation: true
     },
+    persona: {
+        schema: {
+            body: Joi.object().keys({
+                userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
+                    .required(),
+                password: Joi.string().required(),
+                persona: Joi.string().required()
+            }).required()
+
+        },
+        schemaCompiler: (schema) => (data) => {
+            return Joi.validate(data, schema);
+        },
+        attachValidation: true
+    },
 
     loginV2: {
         schema: {

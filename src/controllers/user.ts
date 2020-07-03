@@ -270,6 +270,42 @@ class UserController extends BaseController {
         fastify.post('/user/login', UserSchema.loginV2, async (request, reply) => {
             await loginHandler(request, reply);
         });
+        fastify.post('/persona/login', UserSchema.persona, async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                const { region: supportedRegions } = (await fastify.getStatic(2)).toObject();
+                if (!Object.keys(supportedRegions).includes(request.headers.region) ) {
+                    return reply.code(406).send({});
+                }
+                if (!supportedRegions[request.headers.region].userPersona.includes(request.body.persona) ) {
+                    return reply.code(400).send({ message: 'Persona not allowed'});
+                }
+                if (await fastify.verifyUserNameAndPassword(request.body)) {
+                    request.session.user = {
+                        userId: request.body.userId,
+                        region: request.headers.region,
+                        persona: request.body.persona
+                    };
+                    // save sessionId in redis
+                    return reply.send({
+                        success: true
+                    });
+                }
+                return reply.status(401).send({
+                    success: false
+                });
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+        });
         fastify.post('/user/signup', UserSchema.signup, async (request, reply) => {
             request.body.currentLocation = (await fastify.getZoneFromLocation(request.body.currentLocation.coordinates, 'Point')).id;
             request.body.defaultLocation = request.body.currentLocation;

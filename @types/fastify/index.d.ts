@@ -55,5 +55,6 @@ declare module 'fastify' {
         updateUsedDateTime: (userid: number) => Promise<object>;
         userIdAvailability: (data: object, exists: boolean) => Promise<object>;
         verifyMobileOTP: (mobile: number, otp: number) => Promise<object>;
+        verifyUserNameAndPassword: (data: object) => Promise<object>;
     }
 }

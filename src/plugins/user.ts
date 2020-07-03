@@ -306,6 +306,14 @@ const userPlugin =  async (fastify, opts, next) => {
         }
     };
 
+    const verifyUserNameAndPassword = async (data) => {
+        try {
+            return await User.exists({ _id: data.userId , password: data.password });
+        } catch (e) {
+            throw e;
+        }
+    };
+
     const getLeaderboard = async (userId, type) => {
         try {
             const findUser = await userIdAvailability(userId, false);
@@ -390,6 +398,7 @@ const userPlugin =  async (fastify, opts, next) => {
     fastify.decorate('updateRewards', updateRewards);
     fastify.decorate('getRewards', getRewards);
     fastify.decorate('getLeaderboard', getLeaderboard);
+    fastify.decorate('verifyUserNameAndPassword', verifyUserNameAndPassword);
     next();
 };
 export default userPlugin;
