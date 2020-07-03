@@ -310,7 +310,6 @@ class AdminController extends BaseController {
                             success: false
                         });
                     }
-                    console.log(adminDetails);
                     await fastify.insertUser(request.body, true);
                     request.session.user = {
                         userId: request.body.userId,
@@ -320,7 +319,9 @@ class AdminController extends BaseController {
                     };
                     // save sessionId in redis
                     return reply.send({
-                        success: true
+                        success: true,
+                        region: adminDetails.region,
+                        persona: adminDetails.persona
                     });
                 }
                 return reply.status(401).send({
