@@ -208,7 +208,7 @@ class UserController extends BaseController {
             request.body.defaultLocation = request.body.currentLocation;
             await loginHandler(request, reply);
         });
-        fastify.get('public/images/:imageId', UserSchema.getImage, async (request, reply) => {
+        fastify.get('/public/images/:imageId', UserSchema.getImage, async (request, reply) => {
             try {
                 return reply.send(await fastify.awsPlugin.downloadFile(request.params.imageId, request.query.isAsset, fastify.config.s3.publicBucketName));
             } catch (error) {
