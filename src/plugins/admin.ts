@@ -68,12 +68,12 @@ const adminPlugin =  async (fastify, opts, next) => {
         writer.on('error', console.log);
         await UserTask.find({
             ...filterQuery
-        }, '-_id userId photoId photoId locationNm location formData createdAt').sort('createdAt').stream().pipe(pass).pipe(writer);
+        }, '-_id userId photoId photoId locationNm location formData createdAt submittedBy').sort('createdAt').stream().pipe(pass).pipe(writer);
     };
     const getReportDetailsV2 = async (filterObject, session, ws) => {
         try {
             const filterQuery: any = {
-                region: session.region
+                'submittedBy.region': session.region
             };
             if (filterObject.status) {
                 filterQuery.status = {$in: filterObject.status};
