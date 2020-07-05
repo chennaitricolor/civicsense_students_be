@@ -116,7 +116,7 @@ const adminPlugin =  async (fastify, opts, next) => {
         try {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {
-                region: session.region
+                'submittedBy.region': session.region
             };
             if (filterObject.status) {
                 filterQuery.status = {$in: filterObject.status};
@@ -152,7 +152,7 @@ const adminPlugin =  async (fastify, opts, next) => {
         try {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {
-                region: session.region
+                'submittedBy.region': session.region
             };
             filterQuery.campaignId = mongoose.Types.ObjectId(filterObject.campaignId ? filterObject.campaignId : fastify.config.static.campaignId);
             if (filterObject.status) {
