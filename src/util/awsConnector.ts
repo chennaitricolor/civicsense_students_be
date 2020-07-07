@@ -1,3 +1,4 @@
+import Quicksight from 'aws-sdk/clients/quicksight';
 import S3 from 'aws-sdk/clients/s3';
 import SNS from 'aws-sdk/clients/sns';
 
@@ -27,8 +28,22 @@ export default class AwsConnector {
         return AwsConnector.SNSClient;
     }
 
+    public static getQuicksightClientConnection(config): any {
+        if (!AwsConnector.QuicksightClient) {
+            AwsConnector.QuicksightClient = new Quicksight(
+                {
+                    accessKeyId: config.aws.accessKey,
+                    secretAccessKey: config.aws.secretAccessKey,
+                    region: config.aws.quicksight.iamRegion
+                }
+            );
+        }
+        return AwsConnector.QuicksightClient;
+    }
+
     private static S3Client: S3;
     private static SNSClient: SNS;
+    private static QuicksightClient: Quicksight;
 
     private constructor() {
     }
