@@ -1,3 +1,4 @@
+import AWS from 'aws-sdk';
 import Quicksight from 'aws-sdk/clients/quicksight';
 import S3 from 'aws-sdk/clients/s3';
 import SNS from 'aws-sdk/clients/sns';
@@ -30,11 +31,11 @@ export default class AwsConnector {
 
     public static getQuicksightClientConnection(config): any {
         if (!AwsConnector.QuicksightClient) {
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials(config.aws.quicksight.credentials);
+            AWS.config.region = config.aws.quicksight.iamRegion;
             AwsConnector.QuicksightClient = new Quicksight(
                 {
-                    accessKeyId: config.aws.accessKey,
-                    secretAccessKey: config.aws.secretAccessKey,
-                    region: config.aws.quicksight.iamRegion
+                    region: config.aws.quicksight.region,
                 }
             );
         }
