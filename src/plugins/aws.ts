@@ -112,6 +112,19 @@ class AWSPlugin {
             }
         ));
     }
+
+    public getHQIMSDashboard() {
+        return new Promise(((resolve, reject) => {
+                AwsConnector.getQuicksightClientConnection(this.config)
+                            .getDashboardEmbedUrl(this.config.aws.quicksight.dashboard, (err, data) => {
+                                if (err) {
+                                    return reject(err);
+                                }
+                                return resolve(data ? data : '');
+                            });
+            }
+        ));
+    }
 }
 
 const awsPlugin =  async (fastify, opts, next) => {
