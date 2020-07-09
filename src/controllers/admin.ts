@@ -339,7 +339,7 @@ class AdminController {
             }
         });
 
-    }; 
+    };
 }
 
 export const PostLoginAdminController = new AdminController().setPostLoginAdminRoutes;
