@@ -59,7 +59,7 @@ const adminPlugin =  async (fastify, opts, next) => {
                 'Longitude': chunk.location.coordinates[0],
                 ...formData,
                 'Created At': moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS'),
-                'Photo Link': `${fastify.config.static.photoHost}/api/csr/public/images/${chunk.photoId}`,
+                ...chunk.photoId && {'Photo Link': `${fastify.config.static.photoHost}/api/csr/public/images/${chunk.photoId}`},
                 'Submitted Contact': chunk.submittedBy.userId,
             });
             cb();
