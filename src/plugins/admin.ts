@@ -59,7 +59,7 @@ const adminPlugin =  async (fastify, opts, next) => {
                 'Longitude': chunk.location.coordinates[0],
                 ...formData,
                 'Created At': moment(chunk.createdAt).format('DD-MM-YYYY HH:mm:SS'),
-                'Photo Link': `${fastify.config.static.photoHost}/api/csr/public/images/${chunk.photoId}`,
+                ...chunk.photoId && {'Photo Link': `${fastify.config.static.photoHost}/api/csr/public/images/${chunk.photoId}`},
                 'Submitted Contact': chunk.submittedBy.userId,
             });
             cb();
@@ -68,12 +68,12 @@ const adminPlugin =  async (fastify, opts, next) => {
         writer.on('error', console.log);
         await UserTask.find({
             ...filterQuery
-        }, '-_id userId photoId photoId locationNm location formData createdAt').sort('createdAt').stream().pipe(pass).pipe(writer);
+        }, '-_id userId photoId photoId locationNm location formData createdAt submittedBy').sort('createdAt').stream().pipe(pass).pipe(writer);
     };
     const getReportDetailsV2 = async (filterObject, session, ws) => {
         try {
             const filterQuery: any = {
-                region: session.region
+                'submittedBy.region': session.region
             };
             if (filterObject.status) {
                 filterQuery.status = {$in: filterObject.status};
@@ -116,7 +116,7 @@ const adminPlugin =  async (fastify, opts, next) => {
         try {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {
-                region: session.region
+                'submittedBy.region': session.region
             };
             if (filterObject.status) {
                 filterQuery.status = {$in: filterObject.status};
@@ -152,7 +152,7 @@ const adminPlugin =  async (fastify, opts, next) => {
         try {
             filterObject.live =  filterObject.live ? filterObject.live === 'true' : false;
             const filterQuery: any = {
-                region: session.region
+                'submittedBy.region': session.region
             };
             filterQuery.campaignId = mongoose.Types.ObjectId(filterObject.campaignId ? filterObject.campaignId : fastify.config.static.campaignId);
             if (filterObject.status) {

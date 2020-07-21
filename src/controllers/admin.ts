@@ -338,6 +338,32 @@ class AdminController extends BaseController {
             }
         });
 
+        fastify.get('/admin/hqims-dashboard', async (request, reply) => {
+            if (request.validationError) {
+                return reply.code(400).send(request.validationError);
+            }
+            try {
+                    const dashboard = await fastify.awsPlugin.getHQIMSDashboard();
+                    if (!dashboard) {
+                        return reply.status(401).send({
+                            success: false
+                        });
+                    }
+                    return reply.send({
+                        success: true,
+                        dashboard,
+                    });
+            } catch (error) {
+                reply.status(500);
+                return reply.send({
+                    error,
+                    message: error.message ? error.message : 'error happened'
+
+                });
+
+            }
+        });
+
     }; }
 
 export default AdminController;
