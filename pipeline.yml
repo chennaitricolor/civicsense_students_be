@@ -14,7 +14,7 @@ traefik_ssl_provider: letsencrypt
 vault:
   enabled: true
   name: civicsense_students_be
-  dev:
+  envs:
     - SECRET
     - REGION
     - APPLICATION_ARN
@@ -49,36 +49,4 @@ vault:
     - AWS_QS_DASHBOARD_ID
 
 
-  prod:
-    - SECRET
-    - REGION
-    - APPLICATION_ARN
-    - POSITIVE_TRACKER_CAMP_ID
-    - COOKIE_NAME
-    - REDIS_HOST
-    - OTP_URL
-    - OTP_TEMPLATE_ID
-    - ASSET_BUCKET_NAME
-    - PHOTO_HOST
-    - PUBLIC_BUCKET_NAME
-    - TASK_BUCKET_NAME
-    - MONGO_CONNECTION
-    - SECRETACCESSKEY
-    - ACCESS_KEY
-    - OTP_AUTHKEY
-    - KMLID
-    - PHONE_NO
-    - NODE_ENV
-    - HEALTH_KMLID
-    - TEST_KMLID
-    - COVID_TRACKER
-    - TREATMENT_KMLID
-    - BASIC_AUTH_USER
-    - BASIC_AUTH_PASS
-    - AWS_IAM_ACCOUNT_ID
-    - AWS_IAM_ROLE_SESSION_NAME
-    - AWS_IAM_ROLE_ARN
-    - AWS_IAM_POOL_ID
-    - AWS_IAM_REGION
-    - AWS_QS_REGION
-    - AWS_QS_DASHBOARD_ID
+
