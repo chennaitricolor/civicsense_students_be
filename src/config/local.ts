@@ -51,7 +51,8 @@ const local =  {
         campaignId: process.env.POSITIVE_TRACKER_CAMP_ID,
         photoHost: process.env.PHOTO_HOST,
         username: 'user',
-        password: 'password'
+        password: 'password',
+        cglDashboardId: process.env.AWS_QS_CGL_DASHBOARD_ID
     }
 };
 export default local;

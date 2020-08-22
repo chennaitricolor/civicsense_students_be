@@ -343,7 +343,8 @@ class AdminController extends BaseController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                    const dashboard = await fastify.awsPlugin.getHQIMSDashboard();
+                    const region = request.headers.region ? request.headers.region : 'GCC';
+                    const dashboard = await fastify.awsPlugin.getHQIMSDashboard(region);
                     if (!dashboard) {
                         return reply.status(401).send({
                             success: false
