@@ -47,6 +47,7 @@ vault:
     - AWS_IAM_REGION
     - AWS_QS_REGION
     - AWS_QS_DASHBOARD_ID
+    - AWS_QS_CGL_DASHBOARD_ID
 
 
 

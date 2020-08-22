@@ -113,10 +113,14 @@ class AWSPlugin {
         ));
     }
 
-    public getHQIMSDashboard() {
+    public getHQIMSDashboard(region) {
         return new Promise(((resolve, reject) => {
+                const dashboard = this.config.aws.quicksight.dashboard;
+                if (region === 'CGL') {
+                  dashboard.DashboardId = this.config.static.cglDashboardId;
+                }
                 AwsConnector.getQuicksightClientConnection(this.config)
-                            .getDashboardEmbedUrl(this.config.aws.quicksight.dashboard, (err, data) => {
+                            .getDashboardEmbedUrl(dashboard, (err, data) => {
                                 if (err) {
                                     return reject(err);
                                 }

@@ -54,7 +54,8 @@ const prod =  {
         campaignId: process.env.POSITIVE_TRACKER_CAMP_ID,
         photoHost: process.env.PHOTO_HOST,
         username: process.env.BASIC_AUTH_USER,
-        password: process.env.BASIC_AUTH_PASS
+        password: process.env.BASIC_AUTH_PASS,
+        cglDashboardId: process.env.AWS_QS_CGL_DASHBOARD_ID
     }
 };
 export default prod;
