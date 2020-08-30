@@ -115,7 +115,7 @@ class AWSPlugin {
 
     public getHQIMSDashboard(region) {
         return new Promise(((resolve, reject) => {
-                const dashboard = this.config.aws.quicksight.dashboard;
+                const dashboard = {...this.config.aws.quicksight.dashboard};
                 if (region === 'CGL') {
                   dashboard.DashboardId = this.config.static.cglDashboardId;
                 }
