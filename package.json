@@ -57,7 +57,7 @@
     "@types/lodash": "^4.14.119",
     "@types/newrelic": "^4.11.0",
     "@types/node": "^11.10.4",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "commander": "^4.0.1",
     "connect-redis": "^4.0.3",
     "cross-env": "^5.2.0",
