@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const AdminSchema = new mongoose.Schema({
     _id : {type: Number, required: true},
+    password: {type: Number, required: true},
     name: {type: String, required: true},
     email: {type: String, required: true, index: true},
     dateOfBirth: {type: Date, required: true},

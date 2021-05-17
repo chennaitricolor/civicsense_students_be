@@ -87,7 +87,8 @@ const userSchema = {
             body: Joi.object().keys({
                 userId: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
                     .required(),
-                otp: Joi.number().max(9999).required(),
+                password: phoneJoi.string().phoneNumber({defaultCountry: 'IN', strict: true})
+                .required(),
             }).required()
 
         },

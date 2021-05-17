@@ -23,7 +23,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
 
                 });
@@ -42,7 +42,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
 
                 });
@@ -59,7 +59,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -74,7 +74,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -89,7 +89,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -101,7 +101,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -122,7 +122,7 @@ class AdminController extends BaseController {
                 }
                 console.log(request.session.user);
                 request.body.createdBy = request.session.user.userId;
-                request.body.region =  request.session.user.region;
+                request.body.region = request.session.user.region;
                 await fastify.insertCampaign(request.body);
                 const userData = await fastify.findLocationBasedUserData(request.body.locationIds);
                 userData.forEach(async (data) => {
@@ -139,7 +139,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
 
                 });
@@ -151,11 +151,11 @@ class AdminController extends BaseController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                return reply.status(200).send(await fastify.getCampaignDetails(request.params.campaignId, request.session.user,  request.query ? request.query.lastRecordCreatedAt : undefined));
+                return reply.status(200).send(await fastify.getCampaignDetails(request.params.campaignId, request.session.user, request.query ? request.query.lastRecordCreatedAt : undefined));
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -167,7 +167,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -196,7 +196,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
                 });
 
@@ -216,7 +216,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
 
                 });
@@ -240,7 +240,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
 
                 });
@@ -265,7 +265,7 @@ class AdminController extends BaseController {
             } catch (error) {
                 reply.status(500);
                 return reply.send({
-                    error ,
+                    error,
                     message: error.message ? error.message : 'error happened'
 
                 });
@@ -303,29 +303,25 @@ class AdminController extends BaseController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                if (await fastify.verifyMobileOTP(request.body.userId, request.body.otp)) {
-                    const adminDetails = await fastify.findAdmin(request.body.userId);
-                    if (!adminDetails) {
-                        return reply.status(401).send({
-                            success: false
-                        });
-                    }
-                    await fastify.insertUser(request.body, true);
-                    request.session.user = {
-                        userId: request.body.userId,
-                        region: adminDetails.region,
-                        persona: adminDetails.persona,
-                        isAdmin: true
-                    };
-                    // save sessionId in redis
-                    return reply.send({
-                        success: true,
-                        region: adminDetails.region,
-                        persona: adminDetails.persona
+                const adminDetails = await fastify.findAdmin(request.body.userId, request.body.password);
+                console.log('Admin Details: ', adminDetails);
+                if (!adminDetails || adminDetails.length === 0) {
+                    return reply.status(401).send({
+                        success: false
                     });
                 }
-                return reply.status(401).send({
-                    success: false
+                await fastify.insertUser(request.body, true);
+                request.session.user = {
+                    userId: request.body.userId,
+                    region: adminDetails.region,
+                    persona: adminDetails.persona,
+                    isAdmin: true
+                };
+                // save sessionId in redis
+                return reply.send({
+                    success: true,
+                    region: adminDetails.region,
+                    persona: adminDetails.persona
                 });
             } catch (error) {
                 reply.status(500);
@@ -343,17 +339,17 @@ class AdminController extends BaseController {
                 return reply.code(400).send(request.validationError);
             }
             try {
-                    const region = request.headers.region ? request.headers.region : 'GCC';
-                    const dashboard = await fastify.awsPlugin.getHQIMSDashboard(region);
-                    if (!dashboard) {
-                        return reply.status(401).send({
-                            success: false
-                        });
-                    }
-                    return reply.send({
-                        success: true,
-                        dashboard,
+                const region = request.headers.region ? request.headers.region : 'GCC';
+                const dashboard = await fastify.awsPlugin.getHQIMSDashboard(region);
+                if (!dashboard) {
+                    return reply.status(401).send({
+                        success: false
                     });
+                }
+                return reply.send({
+                    success: true,
+                    dashboard,
+                });
             } catch (error) {
                 reply.status(500);
                 return reply.send({
@@ -365,6 +361,7 @@ class AdminController extends BaseController {
             }
         });
 
-    }; }
+    };
+}
 
 export default AdminController;
