@@ -9,9 +9,9 @@ import UserTask from '../models/user-task';
 
 const adminPlugin =  async (fastify, opts, next) => {
 
-    const findAdmin = async (userId) => {
+    const findAdmin = async (userId, password) => {
         try {
-            return await Admin.findById(userId, '_id region persona');
+            return await Admin.find({_id: userId, password}, '_id region persona');
         } catch (e) {
             throw e;
         }
