@@ -313,15 +313,15 @@ class AdminController extends BaseController {
                 await fastify.insertUser(request.body, true);
                 request.session.user = {
                     userId: request.body.userId,
-                    region: adminDetails.region,
-                    persona: adminDetails.persona,
+                    region: adminDetails[0].region,
+                    persona: adminDetails[0].persona,
                     isAdmin: true
                 };
                 // save sessionId in redis
                 return reply.send({
                     success: true,
-                    region: adminDetails.region,
-                    persona: adminDetails.persona
+                    region: adminDetails[0].region,
+                    persona: adminDetails[0].persona,
                 });
             } catch (error) {
                 reply.status(500);
