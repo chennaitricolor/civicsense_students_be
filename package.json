@@ -87,7 +87,7 @@
     "fastify-multipart": "^1.0.2",
     "fastify-plugin": "^1.6.0",
     "fastify-session": "^3.0.0",
-    "fastify-static": "^2.6.0",
+    "fastify-static": "^4.2.4",
     "fastify-swagger": "^2.4.0",
     "got": "^9.6.0",
     "humps": "^2.0.1",
