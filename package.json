@@ -89,7 +89,7 @@
     "fastify-session": "^3.0.0",
     "fastify-static": "^2.6.0",
     "fastify-swagger": "^2.4.0",
-    "got": "^9.6.0",
+    "got": "^11.8.5",
     "humps": "^2.0.1",
     "joi": "^14.3.1",
     "joi-date-extensions": "^1.2.0",
