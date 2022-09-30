@@ -72,7 +72,7 @@
     "typescript": "3.8"
   },
   "dependencies": {
-    "@hapi/joi": "^15.0.3",
+    "@hapi/joi": "^15.1.1",
     "airbrake-js": "^1.6.6",
     "aws-sdk": "^2.574.0",
     "bad-words": "^3.0.3",
